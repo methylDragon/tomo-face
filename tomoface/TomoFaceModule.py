@@ -1,0 +1,722 @@
+"""
+Author: github.com/methylDragon
+
+████████╗ ██████╗ ███╗   ███╗ ██████╗ ██╗
+╚══██╔══╝██╔═══██╗████╗ ████║██╔═══██╗██║
+   ██║   ██║   ██║██╔████╔██║██║   ██║██║
+   ██║   ██║   ██║██║╚██╔╝██║██║   ██║╚═╝
+   ██║   ╚██████╔╝██║ ╚═╝ ██║╚██████╔╝██╗
+   ╚═╝    ╚═════╝ ╚═╝     ╚═╝ ╚═════╝ ╚═╝
+
+       - Responsive Robot Friend -
+
+[Emotion Display Module]
+
+Features:
+- TOMO animation engine
+
+Useful Attributes:
+- emotion
+- eyes_coords
+- brightness
+
+Runs two threads:
+- animation_advance_thread thread
+- display_update_thread thread
+"""
+
+try:
+    from .lib import PIDController
+except:
+    from lib import PIDController
+from threading import Thread
+
+import time
+import math
+import pygame
+import random
+import sys
+import os
+
+################################################################################
+# Helper Functions
+################################################################################
+
+def is_image_file(filename):
+    """Check if a given file is an image file."""
+    return any([filename.endswith(img_type) for img_type in [".jpg", ".png", ".gif"]])
+
+def is_valid_animation(path, verbose=True):
+    """Check if a given path is a valid animation folder."""
+    try:
+        if "idle" in os.listdir(path) or "transition" in os.listdir(path):
+            return True
+        else:
+            if verbose:
+                print(path, "is not a valid animation folder! It needs an /idle or /transition folder!")
+            return False
+    except:
+        return False
+
+def generate_playback_list(data, delimiter=" ", default_delay=1):
+    """Parse playback string and generate list of tuples of (frame_index, default_delay)"""
+    if len(data) == 0:
+        return []
+
+    playback_list = data.strip().split("\n")
+    output = []
+
+    for row_no, frame in enumerate(playback_list, 1):
+        split_frame = tuple([int(x) for x in frame.strip().split(delimiter)])
+
+        assert len(split_frame) <= 2, "Frame %d is of invalid form!" % (row_no)
+
+        if len(split_frame) == 1:
+            output.append((split_frame[0], default_delay))
+        if len(split_frame) == 2:
+            output.append(split_frame)
+
+    return output
+
+def parse_animation_path(path, verbose=True):
+    """Find all valid animations in a directory and load them."""
+    output = {}
+
+    # Iterate through all possible paths
+    for folder_path in os.listdir(path):
+        animation_dict = {'transition': [], 'idle': [], 'transition_playback': [], 'idle_playback': [], 'animation_name': ""}
+        animation_path = path + "/" + folder_path
+
+        # And only proceed if the animation path is valid
+        if is_valid_animation(animation_path, verbose):
+            for sub_animation in ["transition", "idle"]:
+                try:
+                    sub_animation_path = animation_path + "/" + sub_animation + "/"
+                    animation_dict['animation_name'] = animation_path
+
+                    filenames = os.listdir(sub_animation_path)
+                    frames = [sub_animation_path + frame for frame in filenames if is_image_file(frame)]
+                    frames.sort()
+                    animation_dict[sub_animation] = frames
+
+                    if "frames" in filenames:
+                        with open(sub_animation_path + "/frames", "r") as f:
+                            animation_dict[sub_animation + "_playback"] = generate_playback_list(f.read())
+                except Exception as e:
+                    print("is_valid_animation():", e)
+
+            output[folder_path] = animation_dict
+
+    return output
+
+################################################################################
+# Class
+################################################################################
+
+# TODO:
+# WRITE SET POSITION EQUATION
+
+# Write emotion timeout
+# Write command timeout
+
+# REMEMBER:
+# The mouth translation function takes in the x, y OUTPUT of the PID, then applies the exponential offsetting
+
+class TomoFaceModule():
+    def __init__(self, init_pygame=True, animation_path="",
+                 motion_fps=60, animation_fps=24, blink_fps=40, mouth_offset=(0, 0),
+                 x_pid={'p': 0.025, 'i': 0.005, 'd': 0.0},
+                 y_pid={'p': 0.025, 'i': 0.005, 'd': 0.0},
+                 background_colour=(255, 255, 255),
+                 default_eyes_animation_timeout=2000,
+                 default_mouth_animation_timeout=2000,
+                 position_timeout=1000,
+                 blink_animation_name="blink", enable_blink=True,
+                 eyes_neutral_animation_name="neutral_eyes",
+                 mouth_neutral_animation_name="neutral_mouth",
+                 start_display=True,
+                 no_mouth=False,
+                 overlay_image=False, overlay_image_offset=(0,0),
+                 resolution=None,
+                 surface_mode=False):
+
+        self.pygame_running = False
+        self.stop_pygame = False
+        self.resolution = resolution
+
+        # Init pygame
+        if init_pygame:
+            self.init_pygame()
+
+        # Init PID controllers
+        self.x_pid = PIDController(x_pid['p'], x_pid['i'], x_pid['d'])
+        self.y_pid = PIDController(y_pid['p'], y_pid['i'], y_pid['d'])
+
+        ## Init colours
+        self.background_colour = background_colour
+
+        ## Init mouth offset
+        self.mouth_offset = mouth_offset
+        self.no_mouth = no_mouth
+
+        ## Init last command times
+        self.last_position_time = 0
+        self.last_eyes_animation_time = 0
+        self.last_mouth_animation_time = 0
+        self.last_blink_time = 0
+
+        ## Init default timeouts
+        self.default_eyes_animation_timeout = default_eyes_animation_timeout
+        self.default_mouth_animation_timeout = default_mouth_animation_timeout
+        self.position_timeout = position_timeout
+
+        ## FPS Params
+        self.motion_fps = motion_fps
+        self.animation_fps = animation_fps
+        self.blink_fps = blink_fps
+
+        ## Overlay Image Params
+        self.overlay_image_flag = overlay_image
+        self.overlay_image_offset = overlay_image_offset
+        self.overlay_image = pygame.Surface((self.display_width, self.display_height))
+        self.surface_mode = surface_mode
+        self.output_surface = pygame.Surface((self.display_width, self.display_height))
+
+        ## Init animation library
+        self.animation_lib = {}
+
+        ## Init starting animations
+        if animation_path != "":
+            self.add_animations(animation_path)
+
+        # All changes are made to prior, before being processed to the final one
+        # This is to ensure there is always a lossless image being used
+        self.eyes_display_img = None
+        self.eyes_display_img_prior = None
+        self.eyes_animation = None
+        self.eyes_animation_name = None
+        self.eyes_last_animation_name = None
+
+        self.mouth_display_img = None
+        self.mouth_display_img_prior = None
+        self.mouth_animation = None
+        self.mouth_animation_name = None
+        self.mouth_last_animation_name = None
+
+        self.blink_animation = None
+
+        self.eyes_height = None
+        self.eyes_width = None
+        self.mouth_height = None
+        self.mouth_width = None
+
+        ## Init Animation Defaults
+        self.enable_blink = enable_blink
+
+        self.blink_animation_name = blink_animation_name
+        self.eyes_neutral_animation_name = eyes_neutral_animation_name
+        self.mouth_neutral_animation_name = mouth_neutral_animation_name
+
+        if start_display:
+            self.start_display_threads()
+
+    def init_pygame(self):
+        # Init Pygame
+        pygame.init()
+
+        # Init Display Parameters
+        self.infoObject = pygame.display.Info()
+
+        if self.resolution:
+            self.display_width, self.display_height = self.resolution
+        else:
+            (self.display_width, self.display_height) = self.display_size = (self.infoObject.current_w, self.infoObject.current_h)
+
+        # Init clock
+        self.clock = pygame.time.Clock()
+
+        # Init last command times
+        self.last_position_time = 0
+        self.last_eyes_animation_time = 0
+        self.last_mouth_animation_time = 0
+        self.last_blink_time = 0
+
+        self.pygame_running = True
+        self.stop_pygame = False
+
+    def stop_pygame(self):
+        self.stop_pygame = True
+
+    def set_background_colour(self, colour_tuple):
+        self.background_colour = colour_tuple
+
+    def load_images(self, img_path_list, rescale_tuple=None):
+        """Compute and load rescaled images as pygame surfaces."""
+        if self.pygame_running:
+            if rescale_tuple is None:
+                rescale_tuple = (self.display_width // 2, self.display_height // 2)
+
+            return [pygame.transform.scale(pygame.image.load(image), rescale_tuple) for image in img_path_list]
+        else:
+            print("Pygame not started! Call .init_pygame() to start!")
+            return []
+
+    def add_single_animation(self, name, sub_name,
+                             img_path_list, playback_list=[],
+                             rescale_tuple=None):
+        """Load single sub-animation."""
+        self.animation_lib[name][sub_name] = self.load_images(img_path_list, rescale_tuple)
+        self.animation_lib[name][sub_name + "_playback"] = playback_list
+
+    def add_animations(self, animation_path, verbose=True, rescale_tuple=None):
+        """Load and add animations from a given path."""
+        for animation_name, animation_path_dict in parse_animation_path(animation_path, verbose=True).items():
+            # Traverse each generated animation dictionary from the path
+            # And mutate the overall dictionary by loading all included image paths
+            for property, contents in animation_path_dict.items():
+                # Skip if empty
+                if len(contents) == 0:
+                    continue
+
+                # Skip if it's a playback list
+                if type(contents[0]) != str:
+                    continue
+
+                # Skip also if it is the name property
+                if property == "animation_name":
+                    continue
+
+                # Otherwise, replace all paths in dict with loaded surfaces
+                animation_path_dict[property] = self.load_images(contents, rescale_tuple)
+
+            # And update the visual library
+            self.animation_lib[animation_name] = animation_path_dict
+
+    def animation_generator(self, animation_dict=None, default_delay=1, transition=[], idle=[],
+                            transition_playback_list=[], idle_playback_list=[], skip_transition=False):
+        """Dynamically generate custom animation."""
+        # If animation dictionary is passed, load it
+        if not animation_dict is None:
+            transition = animation_dict.get('transition', [])
+            idle = animation_dict.get('idle', [])
+            transition_playback_list = animation_dict.get('transition_playback', [])
+            idle_playback_list = animation_dict.get('idle_playback', [])
+
+        # If no playback list is passed, generate one
+        if len(transition_playback_list) == 0:
+            transition_playback_list = [(x, default_delay) for x in range(len(transition))]
+
+        if len(idle_playback_list) == 0:
+            idle_playback_list = [(x, default_delay) for x in range(len(idle))]
+
+        # Play transition
+        if not skip_transition:
+            for frame_index, frame_delay in transition_playback_list:
+                try:
+                    for i in range(frame_delay):
+                        yield transition[frame_index]
+                except Exception as e:
+                    print("animation_generator():",e)
+                    print(animation_dict)
+                    print("Transition frame", frame_index, "does not exist!")
+                    yield None
+
+        # Play idle on loop
+        while True:
+            for frame_index, frame_delay in idle_playback_list:
+                try:
+                    for i in range(frame_delay):
+                        yield idle[frame_index]
+                except Exception as e:
+                    print(e)
+                    print("Idle frame", frame_index, "does not exist!")
+                    yield None
+
+    def set_position_goal(self, x, y):
+        """Set target position of face."""
+        self.x_req = x
+        self.y_req = y
+
+        self.last_position_time = pygame.time.get_ticks()
+
+    def increment_position_goal(self, x, y):
+        """Increment target position of face."""
+        self.x_req += x
+        self.y_req += y
+
+        self.last_position_time = pygame.time.get_ticks()
+
+    def set_eyes_animation(self, animation_name, default_delay=1, timeout=None, skip_transition=False):
+        """Set current eye animation."""
+        self.eyes_animation = self.animation_generator(self.animation_lib[animation_name], default_delay=default_delay, skip_transition=skip_transition)
+
+        self.eyes_last_animation_name = self.eyes_animation_name
+        self.eyes_animation_name = animation_name
+
+        if timeout is None:
+            self.eyes_animation_timeout = self.default_eyes_animation_timeout
+        else:
+            self.eyes_animation_timeout = timeout
+
+        self.last_eyes_animation_time = pygame.time.get_ticks()
+
+    def set_mouth_animation(self, animation_name, default_delay=1, timeout=None, skip_transition=False):
+        """Set current mouth animation."""
+        if self.no_mouth:
+            self.mouth_animation_timeout = self.eyes_animation_timeout
+            return
+
+        self.mouth_animation = self.animation_generator(self.animation_lib[animation_name], default_delay=default_delay, skip_transition=skip_transition)
+
+        self.mouth_last_animation_name = self.mouth_animation_name
+        self.mouth_animation_name = animation_name
+
+        if timeout is None:
+            self.mouth_animation_timeout = self.default_mouth_animation_timeout
+        else:
+            self.mouth_animation_timeout = timeout
+
+        self.last_mouth_animation_time = pygame.time.get_ticks()
+
+    def show_mouth(self):
+        """Show mouth."""
+        self.no_mouth = False
+
+    def hide_mouth(self):
+        """Hide mouth."""
+        self.no_mouth = True
+
+    def show_blink(self):
+        """Enable blink."""
+        self.enable_blink = True
+
+    def hide_blink(self):
+        """Disable blink."""
+        self.enable_blink = False
+
+    def set_blink_animation(self, name, default_delay=1):
+        """Set blink animation."""
+        self.blink_animation = self.animation_generator(idle=self.animation_lib[name]['idle'], skip_transition=True)
+        self.blink_animation_name = name
+
+    def set_eyes_neutral_animation_name(self, name):
+        """Set default eye animation."""
+        self.eyes_neutral_animation_name = name
+
+    def set_mouth_neutral_animation_name(self, name):
+        """Set default mouth animation."""
+        self.mouth_neutral_animation_name = name
+
+    def advance_eyes_animation(self, blink=False):
+        """Step eye animation forward one frame."""
+        if blink:
+            self.eyes_display_img_prior = next(self.blink_animation)
+        else:
+            self.eyes_display_img_prior = next(self.eyes_animation)
+
+        self.eyes_width = self.eyes_display_img_prior.get_width()
+        self.eyes_height = self.eyes_display_img_prior.get_height()
+
+    def advance_mouth_animation(self):
+        """Step mouth animation forward one frame."""
+        if self.no_mouth:
+            self.mouth_display_img_prior = self.eyes_display_img_prior
+
+            self.mouth_width = self.eyes_display_img_prior.get_width()
+            self.mouth_height = self.eyes_display_img_prior.get_height()
+        else:
+            self.mouth_display_img_prior = next(self.mouth_animation)
+
+            self.mouth_width = self.mouth_display_img_prior.get_width()
+            self.mouth_height = self.mouth_display_img_prior.get_height()
+
+    # mouth_x, mouth_y = self.mouth_coupling(self.x, self.y, self.mouth_offset)
+    def mouth_coupling(self, x, y, offset):
+        # start_x, start_y = self.calculate_blit_for_center(self.eyes_display_img_prior)
+        # scaling_factor = max(self.display_width, self.display_height) // 2
+        #
+        # diff_x = x - start_x
+        # diff_y = y - start_y - offset[0]
+        #
+        # if diff_x > 0:
+        #     out_x = diff_x ** 2 / scaling_factor + offset[0] + start_x
+        # else:
+        #     out_x = -diff_x ** 2 / scaling_factor + offset[0] + start_x
+        #
+        # if diff_y > 0:
+        #     out_y = diff_y ** 2 / scaling_factor + offset[1] + start_y
+        # else:
+        #     out_y = -diff_y ** 2 / scaling_factor + offset[1] + start_y
+        #
+        # return (out_x, out_y)
+        return (x + offset[0], y + offset[1])
+
+    def calculate_blit_for_center(self, frame, display_width=None, display_height=None, offset=(0,0)):
+        """Get blit coordinates for centralising a surface on some display."""
+        if display_width is None:
+            display_width = self.display_width
+        if display_height is None:
+            display_height = self.display_height
+
+        return (display_width // 2 - frame.get_width() // 2 + offset[0],
+                display_height // 2 - frame.get_height() // 2 + offset[1])
+
+################################################################################
+# Display Threads
+################################################################################
+
+    def play_blink(self):
+        """Blink!"""
+        for i in range(len(self.animation_lib[self.blink_animation_name]['idle'])):
+            if not self.enable_blink:
+                break
+
+            self.advance_eyes_animation(blink=True)
+            time.sleep(1 / self.blink_fps)
+
+    def start_display_threads(self):
+        assert len(self.animation_lib) > 0, "You need animations to start the displays!"
+
+        # Open Display, set it to borderless windowed mode
+        if self.surface_mode:
+            print("FaceModule: SURFACE CREATED")
+            if self.resolution:
+                self.display = pygame.Surface(self.resolution)
+            else:
+                self.display = pygame.Surface(self.display_size)
+        else:
+            print("FaceModule: DISPLAY CREATED")
+            if self.resolution:
+                self.display = pygame.display.set_mode(self.resolution, pygame.NOFRAME)
+            else:
+                self.display = pygame.display.set_mode(self.display_size, pygame.NOFRAME)
+
+        pygame.display.set_caption('TOMO!')
+
+        self.set_eyes_animation(self.eyes_neutral_animation_name)
+        self.set_mouth_animation(self.mouth_neutral_animation_name)
+
+        Thread(target=self.animation_advance_thread, args=()).start()
+        Thread(target=self.display_update_thread, args=()).start()
+
+    def animation_advance_thread(self):
+        """Update which images are used for eyes and mouth."""
+        if self.enable_blink:
+            self.set_blink_animation(self.blink_animation_name)
+
+        # tomo blink animation
+        while self.pygame_running:
+            if self.stop_pygame == True:
+                print("BLINK CYCLER TERMINATED")
+                break
+
+            # tomo_blink enables blinking animations
+            if self.enable_blink:
+                blink_time_to_wait = random.uniform(3, 7)
+                self.last_blink_time = pygame.time.get_ticks()
+
+                # Play transition-idle animation for some time
+                while pygame.time.get_ticks() - self.last_blink_time < blink_time_to_wait * 1000:
+                    self.advance_eyes_animation()
+                    self.advance_mouth_animation()
+                    time.sleep(1 / self.animation_fps)
+
+                self.play_blink() # Blocking!
+
+                if random.randint(0, 1) == 1:
+                    blink_time_to_wait = random.uniform(0.5, 3)
+                    self.last_blink_time = pygame.time.get_ticks()
+
+                    # Play transition-idle animation for some time
+                    while pygame.time.get_ticks() - self.last_blink_time < blink_time_to_wait * 1000:
+                        self.advance_eyes_animation()
+                        self.advance_mouth_animation()
+                        time.sleep(1 / self.animation_fps)
+
+                    self.play_blink() # Blocking!
+
+            else:
+                self.advance_eyes_animation()
+                self.advance_mouth_animation()
+                time.sleep(1 / self.animation_fps)
+
+    def display_update_thread(self):
+        """Handle face movement controls, squishing, and display updates."""
+        self.set_eyes_animation(self.eyes_neutral_animation_name)
+        self.set_mouth_animation(self.mouth_neutral_animation_name)
+
+        while self.eyes_display_img_prior is None:
+            pass
+
+        # Init controller variables
+        (x, y) = self.calculate_blit_for_center(self.eyes_display_img_prior)
+        self.x_req = x # Init set point
+        self.pid_x = x # Init PID output
+        self.x = x # Init blit input
+
+        self.y_req = y # Init set point
+        self.pid_y = y # Init PID output
+        self.y = y # Init blit input
+
+        while self.pygame_running and not self.stop_pygame:
+            # If pygame crashes, quit
+            if not self.surface_mode:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.stop_pygame = True
+                        break
+
+            # Grab key events
+            keys = pygame.key.get_pressed()
+
+            if keys[pygame.K_q]:
+                self.stop_pygame = True
+                break
+
+            if keys[pygame.K_LEFT]:
+                self.x_req -= 50
+
+            elif keys[pygame.K_RIGHT]:
+                self.x_req += 50
+
+            elif keys[pygame.K_DOWN]:
+                self.y_req += 50
+
+            elif keys[pygame.K_UP]:
+                self.y_req -= 50
+
+            elif keys[pygame.K_ESCAPE]:
+                if self.display.get_flags() & pygame.NOFRAME:
+                    pygame.display.set_mode(self.display_size)
+                else:
+                    pygame.display.set_mode(self.display_size, pygame.NOFRAME)
+
+            else:
+                # If there have been no recent position commands, center face
+                if pygame.time.get_ticks() - self.last_position_time > self.position_timeout:
+                    (self.x_req, self.y_req) = self.calculate_blit_for_center(self.eyes_display_img_prior)
+
+            # If timeout for either eyes or mouth animation has been reached,
+            # reset them to the current neutral state (unless they are already there)
+            if pygame.time.get_ticks() - self.last_eyes_animation_time > self.eyes_animation_timeout:
+                if self.eyes_animation_name != self.eyes_neutral_animation_name:
+                    self.set_eyes_animation(self.eyes_neutral_animation_name)
+
+            if pygame.time.get_ticks() - self.last_mouth_animation_time > self.mouth_animation_timeout:
+                if self.mouth_animation_name != self.mouth_neutral_animation_name:
+                    self.set_mouth_animation(self.mouth_neutral_animation_name)
+
+            # Limit the requests
+            if self.x_req < 0:
+                self.x_req = 0.05 * self.eyes_width
+            if self.x_req > self.eyes_width:
+                self.x_req = 0.95 * self.eyes_width
+            if self.y_req > 1.1 * self.eyes_height:
+                self.y_req = 1.1 * self.eyes_height
+            if self.y_req < 0:
+                self.y_req = 0
+
+            # Compute PID control for eyes
+            try:
+                self.pid_x += self.x_pid.compute(self.x_req, self.x)
+                self.pid_y += self.y_pid.compute(self.y_req, self.y)
+
+                if self.pid_x != None:
+                    self.x = self.pid_x
+
+                if self.pid_y != None:
+                    self.y = self.pid_y
+            except:
+                pass
+
+            # Squash eyes if they're near the bottom of the screen
+            if self.y > 0.9 * self.eyes_height:
+                squashed_x = self.display_width // 2 * 1.1 - 1.5 * (self.eyes_height - self.y)
+                squashed_y = self.display_height // 2 * 0.9 + (self.eyes_height - self.y)
+
+                shf_x = 0.9 * self.x + 1.5 * (self.eyes_height - self.y) // 2
+                shf_y = self.y
+
+                self.eyes_display_img = self.eyes_display_img_prior
+                self.eyes_display_img = pygame.transform.scale(self.eyes_display_img, (int(squashed_x), int(squashed_y))) #display_height // 2))
+
+            # Squash eyes if they're near the top of the screen
+            elif self.y < 0.1 * self.eyes_height:
+                squashed_x = self.display_width // 2 * 1.1 - 1.5 * self.y
+                squashed_y = self.display_height // 2 * 0.9 + self.y
+
+                shf_x = 0.9 * self.x + 1.5 * self.y // 2
+                shf_y = self.y
+
+                self.eyes_display_img = self.eyes_display_img_prior
+                self.eyes_display_img = pygame.transform.scale(self.eyes_display_img, (int(squashed_x), int(squashed_y))) #display_height // 2))
+
+            else:
+                self.eyes_display_img = self.eyes_display_img_prior
+                shf_x = self.x
+                shf_y = self.y
+
+            if not self.no_mouth:
+                mouth_x, mouth_y = self.mouth_coupling(self.x, self.y, self.mouth_offset)
+
+                # Squash mouth if they're near the bottom of the screen
+                if mouth_y > 0.9 * self.mouth_height:
+                    squashed_mouth_x = self.display_width // 2 * 1.1 - 1.5 * (self.mouth_height - mouth_y)
+                    squashed_mouth_y = self.display_height // 2 * 0.9 + (self.mouth_height - mouth_y)
+
+                    mouth_shf_x = 0.9 * mouth_x + 1.5 * (self.mouth_height - mouth_y) // 2
+                    mouth_shf_y = mouth_y
+
+                    self.mouth_display_img = self.mouth_display_img_prior
+                    self.mouth_display_img = pygame.transform.scale(self.mouth_display_img, (int(squashed_mouth_x), int(squashed_mouth_y)))
+
+                # Squash mouth if they're near the top of the screen
+                elif mouth_y < 0.1 * self.mouth_height + self.mouth_offset[1]:
+                    squashed_mouth_x = self.display_width // 2 * 1.1 - 1.5 * mouth_y + self.mouth_offset[1]
+                    squashed_mouth_y = self.display_height // 2 * 0.9 + mouth_y - self.mouth_offset[1]
+
+                    mouth_shf_x = 0.9 * mouth_x + 1.5 * mouth_y // 2 - self.mouth_offset[1] // 2
+                    mouth_shf_y = mouth_y
+
+                    self.mouth_display_img = self.mouth_display_img_prior
+                    self.mouth_display_img = pygame.transform.scale(self.mouth_display_img, (int(squashed_mouth_x), int(squashed_mouth_y)))
+
+                else:
+                    self.mouth_display_img = self.mouth_display_img_prior
+                    mouth_shf_x = mouth_x
+                    mouth_shf_y = mouth_y
+
+            # Fill the screen with white
+            self.display.fill(self.background_colour)
+
+            # Execute the eye translation
+            self.display.blit(self.eyes_display_img, (shf_x, shf_y))
+
+            if not self.no_mouth:
+                self.display.blit(self.mouth_display_img, (mouth_shf_x, mouth_shf_y))
+
+            if self.overlay_image_flag:
+                self.display.blit(self.overlay_image, self.overlay_image_offset)
+
+            # Update the frame and tick the clock (Best effort for 60FPS)
+            if self.surface_mode:
+                self.output_surface.blit(self.display, (0,0))
+            else:
+                pygame.display.update()
+
+            self.clock.tick(self.motion_fps)
+
+        self.pygame_running = False
+        pygame.quit()
+
+if __name__ == "__main__":
+    pass
+
+    face_module = TomoFaceModule(animation_path="example_animations", eyes_neutral_animation_name="happy_eyes",
+                                 mouth_neutral_animation_name="happy_mouth", blink_animation_name="blink",
+                                 no_mouth=False, enable_blink=True, mouth_offset=(0, 10), background_colour=(0, 0, 0))
+
+    face_module.animation_lib
+
+    time.sleep(5)
+    face_module.set_eyes_animation("inlove_eyes", skip_transition=True)
