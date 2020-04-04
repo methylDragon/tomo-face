@@ -637,8 +637,7 @@ class TomoFaceModule():
                 shf_x = 0.9 * self.x + 1.5 * (self.eyes_height - self.y) // 2
                 shf_y = self.y
 
-                self.eyes_display_img = self.eyes_display_img_prior
-                self.eyes_display_img = pygame.transform.scale(self.eyes_display_img, (int(squashed_x), int(squashed_y))) #display_height // 2))
+                self.eyes_display_img = pygame.transform.scale(self.eyes_display_img_prior, (int(squashed_x), int(squashed_y))) #display_height // 2))
 
             # Squash eyes if they're near the top of the screen
             elif self.y < 0.1 * self.eyes_height:
@@ -648,8 +647,7 @@ class TomoFaceModule():
                 shf_x = 0.9 * self.x + 1.5 * self.y // 2
                 shf_y = self.y
 
-                self.eyes_display_img = self.eyes_display_img_prior
-                self.eyes_display_img = pygame.transform.scale(self.eyes_display_img, (int(squashed_x), int(squashed_y))) #display_height // 2))
+                self.eyes_display_img = pygame.transform.scale(self.eyes_display_img_prior, (int(squashed_x), int(squashed_y))) #display_height // 2))
 
             else:
                 self.eyes_display_img = self.eyes_display_img_prior
@@ -667,8 +665,7 @@ class TomoFaceModule():
                     mouth_shf_x = 0.9 * mouth_x + 1.5 * (self.mouth_height - mouth_y) // 2
                     mouth_shf_y = mouth_y
 
-                    self.mouth_display_img = self.mouth_display_img_prior
-                    self.mouth_display_img = pygame.transform.scale(self.mouth_display_img, (int(squashed_mouth_x), int(squashed_mouth_y)))
+                    self.mouth_display_img = pygame.transform.scale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
 
                 # Squash mouth if they're near the top of the screen
                 elif mouth_y < 0.1 * self.mouth_height + self.mouth_offset[1]:
@@ -678,8 +675,7 @@ class TomoFaceModule():
                     mouth_shf_x = 0.9 * mouth_x + 1.5 * mouth_y // 2 - self.mouth_offset[1] // 2
                     mouth_shf_y = mouth_y
 
-                    self.mouth_display_img = self.mouth_display_img_prior
-                    self.mouth_display_img = pygame.transform.scale(self.mouth_display_img, (int(squashed_mouth_x), int(squashed_mouth_y)))
+                    self.mouth_display_img = pygame.transform.scale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
 
                 else:
                     self.mouth_display_img = self.mouth_display_img_prior
