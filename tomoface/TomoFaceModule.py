@@ -135,18 +135,10 @@ def aspect_scale(img, rescale_tuple):
 # Class
 ################################################################################
 
-# TODO:
-# WRITE SET POSITION EQUATION
-
-# Write emotion timeout
-# Write command timeout
-
-# REMEMBER:
-# The mouth translation function takes in the x, y OUTPUT of the PID, then applies the exponential offsetting
-
 class TomoFaceModule():
     def __init__(self, init_pygame=True, animation_path="",
-                 motion_fps=60, animation_fps=24, blink_fps=40, mouth_offset=(0, 0),
+                 motion_fps=60, animation_fps=24, blink_fps=40,
+                 mouth_offset=(0, 0),
                  x_pid={'p': 0.025, 'i': 0.005, 'd': 0.0},
                  y_pid={'p': 0.025, 'i': 0.005, 'd': 0.0},
                  background_colour=(255, 255, 255),
@@ -160,11 +152,17 @@ class TomoFaceModule():
                  no_mouth=False,
                  overlay_image=False, overlay_image_offset=(0,0),
                  resolution=None,
-                 surface_mode=False):
+                 surface_mode=False,
+                 y_padding=0.05,
+                 squash_window=0.15, squash_amount_x=0.5, squash_amount_y=0.5):
 
         self.pygame_running = False
         self.stop_pygame = False
         self.resolution = resolution
+        self.y_padding = y_padding
+        self.squash_window = squash_window
+        self.squash_amount_x = squash_amount_x
+        self.squash_amount_y = squash_amount_y
 
         # Init pygame
         if init_pygame:
@@ -206,10 +204,11 @@ class TomoFaceModule():
 
         ## Init animation library
         self.animation_lib = {}
+        self.animation_path = animation_path
 
         ## Init starting animations
-        if animation_path != "":
-            self.add_animations(animation_path)
+        if self.animation_path != "":
+            self.add_animations(self.animation_path)
 
         # All changes are made to prior, before being processed to the final one
         # This is to ensure there is always a lossless image being used
@@ -361,15 +360,23 @@ class TomoFaceModule():
 
     def set_position_goal(self, x, y):
         """Set target position of face."""
-        self.x_req = x
-        self.y_req = y
+        self.x_goal = x
+        self.y_goal = y
+
+        self.last_position_time = pygame.time.get_ticks()
+
+    # TODO
+    def set_offset_goal(self, x, y):
+        """Set target position of face."""
+        self.x_goal = x
+        self.y_goal = y
 
         self.last_position_time = pygame.time.get_ticks()
 
     def increment_position_goal(self, x, y):
         """Increment target position of face."""
-        self.x_req += x
-        self.y_req += y
+        self.x_goal += x
+        self.y_goal += y
 
         self.last_position_time = pygame.time.get_ticks()
 
@@ -457,36 +464,21 @@ class TomoFaceModule():
             self.mouth_width = self.mouth_display_img_prior.get_width()
             self.mouth_height = self.mouth_display_img_prior.get_height()
 
-    # mouth_x, mouth_y = self.mouth_coupling(self.x, self.y, self.mouth_offset)
-    def mouth_coupling(self, x, y, offset):
-        # start_x, start_y = self.calculate_blit_for_center(self.eyes_display_img_prior)
-        # scaling_factor = max(self.display_width, self.display_height) // 2
-        #
-        # diff_x = x - start_x
-        # diff_y = y - start_y - offset[0]
-        #
-        # if diff_x > 0:
-        #     out_x = diff_x ** 2 / scaling_factor + offset[0] + start_x
-        # else:
-        #     out_x = -diff_x ** 2 / scaling_factor + offset[0] + start_x
-        #
-        # if diff_y > 0:
-        #     out_y = diff_y ** 2 / scaling_factor + offset[1] + start_y
-        # else:
-        #     out_y = -diff_y ** 2 / scaling_factor + offset[1] + start_y
-        #
-        # return (out_x, out_y)
-        return (x + offset[0], y + offset[1])
+    def calculate_blit_for_center(self, surface, display_width=None, display_height=None, offset=(0,0)):
+        """
+        Get blit coordinates for centralising a pygame surface on a display.
 
-    def calculate_blit_for_center(self, frame, display_width=None, display_height=None, offset=(0,0)):
-        """Get blit coordinates for centralising a surface on some display."""
+        Returns the coordinate corresponding to the top left corner of the
+        input surface when the surface is in the center of the display,
+        with an optional offset.
+        """
         if display_width is None:
             display_width = self.display_width
         if display_height is None:
             display_height = self.display_height
 
-        return (display_width // 2 - frame.get_width() // 2 + offset[0],
-                display_height // 2 - frame.get_height() // 2 + offset[1])
+        return (display_width // 2 - surface.get_width() // 2 + offset[0],
+                display_height // 2 - surface.get_height() // 2 + offset[1])
 
 ################################################################################
 # Display Threads
@@ -577,12 +569,12 @@ class TomoFaceModule():
 
         # Init controller variables
         (x, y) = self.calculate_blit_for_center(self.eyes_display_img_prior)
-        self.x_req = x # Init set point
-        self.pid_x = x # Init PID output
+        self.x_goal = x # Init set point
+        self.x_pid_output = x # Init PID output
         self.x = x # Init blit input
 
-        self.y_req = y # Init set point
-        self.pid_y = y # Init PID output
+        self.y_goal = y # Init set point
+        self.y_pid_output = y # Init PID output
         self.y = y # Init blit input
 
         while self.pygame_running and not self.stop_pygame:
@@ -601,16 +593,16 @@ class TomoFaceModule():
                 break
 
             if keys[pygame.K_LEFT]:
-                self.x_req -= 50
+                self.x_goal -= 50
 
             elif keys[pygame.K_RIGHT]:
-                self.x_req += 50
+                self.x_goal += 50
 
             elif keys[pygame.K_DOWN]:
-                self.y_req += 50
+                self.y_goal += 50
 
             elif keys[pygame.K_UP]:
-                self.y_req -= 50
+                self.y_goal -= 50
 
             elif keys[pygame.K_ESCAPE]:
                 if self.display.get_flags() & pygame.NOFRAME:
@@ -621,7 +613,7 @@ class TomoFaceModule():
             else:
                 # If there have been no recent position commands, center face
                 if pygame.time.get_ticks() - self.last_position_time > self.position_timeout:
-                    (self.x_req, self.y_req) = self.calculate_blit_for_center(self.eyes_display_img_prior)
+                    (self.x_goal, self.y_goal) = self.calculate_blit_for_center(self.eyes_display_img_prior)
 
             # If timeout for either eyes or mouth animation has been reached,
             # reset them to the current neutral state (unless they are already there)
@@ -633,90 +625,120 @@ class TomoFaceModule():
                 if self.mouth_animation_name != self.mouth_neutral_animation_name:
                     self.set_mouth_animation(self.mouth_neutral_animation_name)
 
-            # Limit the requests
-            if self.x_req < 0:
-                self.x_req = 0.05 * self.eyes_width
-            if self.x_req > self.eyes_width:
-                self.x_req = 0.95 * self.eyes_width
-            if self.y_req > 1.1 * self.eyes_height:
-                self.y_req = 1.1 * self.eyes_height
-            if self.y_req < 0:
-                self.y_req = 0
+            # Limit the goal requests
+            if self.x_goal < 0:
+                self.x_goal = 0
+            if self.x_goal > self.display_width - self.eyes_width:
+                self.x_goal = self.display_width - self.eyes_width
+
+            if self.no_mouth:
+                y_upper_limit = self.display_height - self.eyes_height * (1 + self.y_padding)
+                y_lower_limit = self.y_padding * self.eyes_height
+            elif self.mouth_offset[1] >= 0: # Mouth below eyes
+                y_upper_limit = self.display_height - self.eyes_height * (1 + self.y_padding) - self.mouth_offset[1]
+                y_lower_limit = self.y_padding * self.eyes_height
+            else: # Mouth above eyes
+                y_upper_limit = self.display_height - self.eyes_height * (1 + self.y_padding)
+                y_lower_limit = self.y_padding * self.eyes_height - self.mouth_offset[1]
+
+            if self.y_goal > y_upper_limit:
+                self.y_goal = y_upper_limit
+            if self.y_goal < y_lower_limit:
+                self.y_goal = y_lower_limit
 
             # Compute PID control for eyes
             try:
-                self.pid_x += self.x_pid.compute(self.x_req, self.x)
-                self.pid_y += self.y_pid.compute(self.y_req, self.y)
+                self.x_pid_output += self.x_pid.compute(self.x_goal, self.x)
+                self.y_pid_output += self.y_pid.compute(self.y_goal, self.y)
 
-                if self.pid_x != None:
-                    self.x = self.pid_x
+                if self.x_pid_output != None:
+                    self.x = self.x_pid_output
 
-                if self.pid_y != None:
-                    self.y = self.pid_y
+                if self.y_pid_output != None:
+                    self.y = self.y_pid_output
             except:
                 pass
 
-            # Squash eyes if they're near the bottom of the screen
-            if self.y > 0.9 * self.eyes_height:
-                squashed_x = self.display_width // 2 * 1.1 - 1.5 * (self.eyes_height - self.y)
-                squashed_y = self.display_height // 2 * 0.9 + (self.eyes_height - self.y)
+            if self.no_mouth:
+                y_upper_squash_limit = self.display_height - self.eyes_height * (1 + self.squash_window + self.y_padding)
+                y_lower_squash_limit = (self.squash_window + self.y_padding) * self.eyes_height
+                y_face_top, y_face_bottom = self.y, self.y
+            elif self.mouth_offset[1] >= 0: # Mouth below eyes
+                y_upper_squash_limit = self.display_height - self.eyes_height * (1 + self.squash_window + self.y_padding) - self.mouth_offset[1]
+                y_lower_squash_limit = (self.squash_window + self.y_padding) * self.eyes_height
+                y_face_top, y_face_bottom = self.y, self.y + self.mouth_offset[1]
+            else: # Mouth above eyes
+                y_upper_squash_limit = self.display_height - self.eyes_height * (1 + self.squash_window + self.y_padding)
+                y_lower_squash_limit = (self.squash_window + self.y_padding) * self.eyes_height - self.mouth_offset[1]
+                y_face_top, y_face_bottom = self.y + self.mouth_offset[1], self.y
 
-                shf_x = 0.9 * self.x + 1.5 * (self.eyes_height - self.y) // 2
-                shf_y = self.y
+            # Squash eyes if face is near the bottom of the screen
+            # Note: Upper limit here refers to the magnitude of the y value
+            # Higher y values refers to lower screen positions
+            if y_face_bottom > y_upper_squash_limit:
+                squash_percentage = (y_face_bottom - y_upper_squash_limit) / (y_upper_limit - y_upper_squash_limit) * 100
+                squashed_eyes_x = self.eyes_width + self.squash_amount_x * squash_percentage
+                squashed_eyes_y = self.eyes_height - self.squash_amount_y * squash_percentage
 
-                self.eyes_display_img = pygame.transform.scale(self.eyes_display_img_prior, (int(squashed_x), int(squashed_y))) #display_height // 2))
+                self.eyes_display_img = pygame.transform.smoothscale(self.eyes_display_img_prior, (int(squashed_eyes_x), int(squashed_eyes_y))) #display_height // 2))
 
-            # Squash eyes if they're near the top of the screen
-            elif self.y < 0.1 * self.eyes_height:
-                squashed_x = self.display_width // 2 * 1.1 - 1.5 * self.y
-                squashed_y = self.display_height // 2 * 0.9 + self.y
+                x_eyes_shf = self.x - (squashed_eyes_x - self.eyes_width) / 2
+                y_eyes_shf = self.y + (self.eyes_height - squashed_eyes_y) # Compensate for translation due to scale
 
-                shf_x = 0.9 * self.x + 1.5 * self.y // 2
-                shf_y = self.y
+            # Squash eyes if face is near the top of the screen
+            elif y_face_top < y_lower_squash_limit:
+                squash_percentage = (y_face_top - y_lower_squash_limit) / (y_lower_limit - y_lower_squash_limit) * 100
+                squashed_eyes_x = self.eyes_width + self.squash_amount_x * squash_percentage
+                squashed_eyes_y = self.eyes_height - self.squash_amount_y * squash_percentage
 
-                self.eyes_display_img = pygame.transform.scale(self.eyes_display_img_prior, (int(squashed_x), int(squashed_y))) #display_height // 2))
+                x_eyes_shf = self.x - (squashed_eyes_x - self.eyes_width) / 2
+                y_eyes_shf = self.y
+
+                self.eyes_display_img = pygame.transform.smoothscale(self.eyes_display_img_prior, (int(squashed_eyes_x), int(squashed_eyes_y))) #display_height // 2))
 
             else:
                 self.eyes_display_img = self.eyes_display_img_prior
-                shf_x = self.x
-                shf_y = self.y
+                x_eyes_shf = self.x
+                y_eyes_shf = self.y
 
             if not self.no_mouth:
-                mouth_x, mouth_y = self.mouth_coupling(self.x, self.y, self.mouth_offset)
+                x_mouth, y_mouth = self.x + self.mouth_offset[0], self.y + self.mouth_offset[1]
 
-                # Squash mouth if they're near the bottom of the screen
-                if mouth_y > 0.9 * self.mouth_height:
-                    squashed_mouth_x = self.display_width // 2 * 1.1 - 1.5 * (self.mouth_height - mouth_y)
-                    squashed_mouth_y = self.display_height // 2 * 0.9 + (self.mouth_height - mouth_y)
+                # Squash mouth if face is near the bottom of the screen
+                if y_face_bottom > y_upper_squash_limit:
+                    squash_percentage = (y_face_bottom - y_upper_squash_limit) / (y_upper_limit - y_upper_squash_limit) * 100
+                    squashed_mouth_x = self.mouth_width + self.squash_amount_x * squash_percentage
+                    squashed_mouth_y = self.mouth_height - self.squash_amount_y * squash_percentage
 
-                    mouth_shf_x = 0.9 * mouth_x + 1.5 * (self.mouth_height - mouth_y) // 2
-                    mouth_shf_y = mouth_y
+                    x_mouth_shf = x_mouth - (squashed_mouth_x - self.mouth_width) / 2
+                    y_mouth_shf = y_mouth + (self.mouth_height - squashed_mouth_y) # Compensate for translation due to scale
 
-                    self.mouth_display_img = pygame.transform.scale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
+                    self.mouth_display_img = pygame.transform.smoothscale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
 
                 # Squash mouth if they're near the top of the screen
-                elif mouth_y < 0.1 * self.mouth_height + self.mouth_offset[1]:
-                    squashed_mouth_x = self.display_width // 2 * 1.1 - 1.5 * mouth_y + self.mouth_offset[1]
-                    squashed_mouth_y = self.display_height // 2 * 0.9 + mouth_y - self.mouth_offset[1]
+                elif y_face_top < y_lower_squash_limit:
+                    squash_percentage = (y_face_top - y_lower_squash_limit) / (y_lower_limit - y_lower_squash_limit) * 100
+                    squashed_mouth_x = self.mouth_width + self.squash_amount_x * squash_percentage
+                    squashed_mouth_y = self.mouth_height - self.squash_amount_y * squash_percentage
 
-                    mouth_shf_x = 0.9 * mouth_x + 1.5 * mouth_y // 2 - self.mouth_offset[1] // 2
-                    mouth_shf_y = mouth_y
+                    x_mouth_shf = x_mouth - (squashed_mouth_x - self.mouth_width) / 2
+                    y_mouth_shf = y_mouth
 
-                    self.mouth_display_img = pygame.transform.scale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
+                    self.mouth_display_img = pygame.transform.smoothscale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
 
                 else:
                     self.mouth_display_img = self.mouth_display_img_prior
-                    mouth_shf_x = mouth_x
-                    mouth_shf_y = mouth_y
+                    x_mouth_shf = x_mouth
+                    y_mouth_shf = y_mouth
 
             # Fill the screen with white
             self.display.fill(self.background_colour)
 
             # Execute the eye translation
-            self.display.blit(self.eyes_display_img, (shf_x, shf_y))
+            self.display.blit(self.eyes_display_img, (x_eyes_shf, y_eyes_shf))
 
             if not self.no_mouth:
-                self.display.blit(self.mouth_display_img, (mouth_shf_x, mouth_shf_y))
+                self.display.blit(self.mouth_display_img, (x_mouth_shf, y_mouth_shf))
 
             if self.overlay_image_flag:
                 self.display.blit(self.overlay_image, self.overlay_image_offset)
