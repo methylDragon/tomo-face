@@ -491,7 +491,7 @@ class TomoFaceModule():
                 break
 
             self.advance_eyes_animation(blink=True)
-            time.sleep(1 / self.blink_fps)
+            pygame.time.delay(1000 // self.blink_fps)
 
     def start_display_threads(self):
         assert len(self.animation_lib) > 0, "You need animations to start the displays!"
@@ -538,10 +538,11 @@ class TomoFaceModule():
                 while pygame.time.get_ticks() - self.last_blink_time < blink_time_to_wait * 1000:
                     self.advance_eyes_animation()
                     self.advance_mouth_animation()
-                    time.sleep(1 / self.animation_fps)
+                    pygame.time.delay(1000 // self.animation_fps)
 
                 self.play_blink() # Blocking!
 
+                # Random chance to blink again
                 if random.randint(0, 1) == 1:
                     blink_time_to_wait = random.uniform(0.5, 3)
                     self.last_blink_time = pygame.time.get_ticks()
@@ -550,14 +551,13 @@ class TomoFaceModule():
                     while pygame.time.get_ticks() - self.last_blink_time < blink_time_to_wait * 1000:
                         self.advance_eyes_animation()
                         self.advance_mouth_animation()
-                        time.sleep(1 / self.animation_fps)
+                        pygame.time.delay(1000 // self.animation_fps)
 
                     self.play_blink() # Blocking!
-
             else:
                 self.advance_eyes_animation()
                 self.advance_mouth_animation()
-                time.sleep(1 / self.animation_fps)
+                pygame.time.delay(1000 // self.animation_fps)
 
     def display_update_thread(self):
         """Handle face movement controls, squishing, and display updates."""
