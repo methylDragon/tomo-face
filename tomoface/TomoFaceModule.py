@@ -757,11 +757,15 @@ class TomoFaceModule():
 if __name__ == "__main__":
     pass
 
-    face_module = TomoFaceModule(animation_path="example_animations", eyes_neutral_animation_name="happy_eyes",
+    face_module = TomoFaceModule(animation_path="tomo_animations", eyes_neutral_animation_name="happy_eyes",
                                  mouth_neutral_animation_name="happy_mouth", blink_animation_name="blink",
-                                 no_mouth=False, enable_blink=True, mouth_offset=(0, 10), background_colour=(0, 0, 0))
+                                 start_display=True, resolution=(1920, 1080),
+                                 no_mouth=False, enable_blink=True, mouth_offset=(0, 0), background_colour=(0, 0, 0),
+                                 y_padding=0.05,
+                                 squash_window=0.25,
+                                 squash_amount_x=0.75, squash_amount_y=0.75)
 
     face_module.animation_lib
 
     time.sleep(5)
-    face_module.set_eyes_animation("inlove_eyes", skip_transition=True)
+    face_module.set_eyes_animation("inlove_eyess", skip_transition=True)
