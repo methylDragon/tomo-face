@@ -8,17 +8,12 @@ Author: github.com/methylDragon
    ██║   ╚██████╔╝██║ ╚═╝ ██║╚██████╔╝██╗
    ╚═╝    ╚═════╝ ╚═╝     ╚═╝ ╚═════╝ ╚═╝
 
-       - Responsive Robot Friend -
+      - Making Devices Friendlier -
 
-[Emotion Display Module]
+[TOMOFACE: Face Animation Character Engine]
 
 Features:
 - TOMO animation engine
-
-Useful Attributes:
-- emotion
-- eyes_coords
-- brightness
 
 Runs two threads:
 - animation_advance_thread thread
