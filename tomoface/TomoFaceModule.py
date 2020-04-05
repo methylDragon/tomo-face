@@ -104,6 +104,33 @@ def parse_animation_path(path, verbose=True):
 
     return output
 
+# Source http://www.pygame.org/pcr/transform_scale/
+def aspect_scale(img, rescale_tuple):
+    """Get scaled image dimensions while retaining aspect ratio."""
+    bx, by = rescale_tuple
+    ix,iy = img.get_size()
+
+    if ix > iy:
+        scale_factor = bx/float(ix)
+        sy = scale_factor * iy
+        if sy > by:
+            scale_factor = by/float(iy)
+            sx = scale_factor * ix
+            sy = by
+        else:
+            sx = bx
+    else:
+        scale_factor = by/float(iy)
+        sx = scale_factor * ix
+        if sx > bx:
+            scale_factor = bx/float(ix)
+            sx = bx
+            sy = scale_factor * iy
+        else:
+            sy = by
+
+    return int(sx), int(sy)
+
 ################################################################################
 # Class
 ################################################################################
@@ -245,13 +272,18 @@ class TomoFaceModule():
     def set_background_colour(self, colour_tuple):
         self.background_colour = colour_tuple
 
-    def load_images(self, img_path_list, rescale_tuple=None):
+    def load_images(self, img_path_list, rescale_tuple=None, stretch=False):
         """Compute and load rescaled images as pygame surfaces."""
         if self.pygame_running:
             if rescale_tuple is None:
                 rescale_tuple = (self.display_width // 2, self.display_height // 2)
 
-            return [pygame.transform.scale(pygame.image.load(image), rescale_tuple) for image in img_path_list]
+            if stretch: # Stretch images to fit display
+                return [pygame.transform.smoothscale(pygame.image.load(image), rescale_tuple) for image in img_path_list]
+            else: # Otherwise, preserve aspect ratio
+                return [pygame.transform.smoothscale(pygame.image.load(image), \
+                        aspect_scale(pygame.image.load(image), rescale_tuple)) \
+                        for image in img_path_list]
         else:
             print("Pygame not started! Call .init_pygame() to start!")
             return []
