@@ -154,15 +154,21 @@ class TomoFaceModule():
                  resolution=None,
                  surface_mode=False,
                  y_padding=0.05,
-                 squash_window=0.15, squash_amount_x=0.5, squash_amount_y=0.5):
+                 squash_window=0.15, squash_amount_x=0.5, squash_amount_y=0.5,
+                 bob_amount=0, bob_frequency=0.2,
+                 skip_neutral_transition=False):
 
         self.pygame_running = False
         self.stop_pygame = False
         self.resolution = resolution
+        # TODO: Organise these
         self.y_padding = y_padding
         self.squash_window = squash_window
         self.squash_amount_x = squash_amount_x
         self.squash_amount_y = squash_amount_y
+        self.bob_amount = bob_amount
+        self.bob_frequency = bob_frequency
+        self.skip_neutral_transition = skip_neutral_transition
 
         # Init pygame
         if init_pygame:
@@ -734,11 +740,16 @@ class TomoFaceModule():
             # Fill the screen with white
             self.display.fill(self.background_colour)
 
+            # Compute bob
+            bob = self.bob_amount * (math.sin(pygame.time.get_ticks() / 1000
+                                     * 2 * math.pi
+                                     * self.bob_frequency))
+
             # Execute the eye translation
-            self.display.blit(self.eyes_display_img, (x_eyes_shf, y_eyes_shf))
+            self.display.blit(self.eyes_display_img, (x_eyes_shf, y_eyes_shf + bob))
 
             if not self.no_mouth:
-                self.display.blit(self.mouth_display_img, (x_mouth_shf, y_mouth_shf))
+                self.display.blit(self.mouth_display_img, (x_mouth_shf, y_mouth_shf + bob))
 
             if self.overlay_image_flag:
                 self.display.blit(self.overlay_image, self.overlay_image_offset)
