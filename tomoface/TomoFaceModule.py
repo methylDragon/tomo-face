@@ -223,12 +223,22 @@ class TomoFaceModule():
         self.eyes_animation = None
         self.eyes_animation_name = None
         self.eyes_last_animation_name = None
+        self.eyes_animation_info = {'animation_name': "-",
+                                    'frame': -1,
+                                    'frame_delay': -1,
+                                    'frame_delay_index': -1,
+                                    'state': -1}
 
         self.mouth_display_img = None
         self.mouth_display_img_prior = None
         self.mouth_animation = None
         self.mouth_animation_name = None
         self.mouth_last_animation_name = None
+        self.mouth_animation_info = {'animation_name': "-",
+                                     'frame': -1,
+                                     'frame_delay': -1,
+                                     'frame_delay_index': -1,
+                                     'state': -1}
 
         self.blink_animation = None
 
@@ -325,7 +335,8 @@ class TomoFaceModule():
             self.animation_lib[animation_name] = animation_path_dict
 
     def animation_generator(self, animation_dict=None, default_delay=1, transition=[], idle=[],
-                            transition_playback_list=[], idle_playback_list=[], skip_transition=False):
+                            transition_playback_list=[], idle_playback_list=[], skip_transition=False,
+                            animation_info_dict=None, animation_name=""):
         """Dynamically generate custom animation."""
         # If animation dictionary is passed, load it
         if not animation_dict is None:
@@ -345,23 +356,66 @@ class TomoFaceModule():
         if not skip_transition:
             for frame_index, frame_delay in transition_playback_list:
                 try:
+                    if animation_info_dict:
+                        try:
+                            if animation_name:
+                                animation_info_dict['animation_name'] = animation_name
+                            else:
+                                animation_info_dict['animation_name'] = animation_dict['animation_name']
+                        except:
+                            animation_info_dict['animation_name'] = "ERROR"
+
+                        animation_info_dict['state'] = 0
+                        animation_info_dict['frame_delay'] = frame_delay
+                        animation_info_dict['frame'] = frame_index + 1
+
                     for i in range(frame_delay):
+                        if animation_info_dict:
+                            animation_info_dict['frame_delay_index'] = i + 1
+
                         yield transition[frame_index]
+
                 except Exception as e:
-                    print("animation_generator():",e)
-                    print(animation_dict)
-                    print("Transition frame", frame_index, "does not exist!")
+                    if animation_info_dict:
+                        animation_info_dict['frame_delay_index'] = -1
+
+                    print("animation_generator():", e)
+                    print("Transition frame", frame_index,
+                          "for", animation_name, "does not exist!")
+
                     yield None
 
         # Play idle on loop
         while True:
             for frame_index, frame_delay in idle_playback_list:
                 try:
+                    if animation_info_dict:
+                        try:
+                            if animation_name:
+                                animation_info_dict['animation_name'] = animation_name
+                            else:
+                                animation_info_dict['animation_name'] = animation_dict['animation_name']
+                        except:
+                            animation_info_dict['animation_name'] = "ERROR"
+
+                        animation_info_dict['state'] = 1
+                        animation_info_dict['frame_delay'] = frame_delay
+                        animation_info_dict['frame'] = frame_index + 1
+
                     for i in range(frame_delay):
+                        if animation_info_dict:
+                            animation_info_dict['frame_delay_index'] = i + 1
+
                         yield idle[frame_index]
+
                 except Exception as e:
-                    print(e)
-                    print("Idle frame", frame_index, "does not exist!")
+                    if animation_info_dict:
+                        animation_info_dict['frame_delay_index'] = -1
+
+                    print("animation_generator():", e)
+                    print("Idle frame", frame_index,
+                          "for", animation_name, "does not exist!")
+
                     yield None
 
     def set_position_goal(self, x, y):
@@ -386,9 +440,26 @@ class TomoFaceModule():
 
         self.last_position_time = pygame.time.get_ticks()
 
-    def set_eyes_animation(self, animation_name, default_delay=1, timeout=None, skip_transition=False):
+    def set_eyes_animation(self, animation_name, default_delay=1, timeout=None,
+                           skip_transition=False, force_reset_animation=False):
         """Set current eye animation."""
-        self.eyes_animation = self.animation_generator(self.animation_lib[animation_name], default_delay=default_delay, skip_transition=skip_transition)
+        # If the same animation is requested,
+        # and no request to replay it is made, return
+        if self.eyes_last_animation_name == animation_name \
+           and not force_reset_animation:
+            return
+
+        # Verify animation exists
+        if animation_name in self.animation_lib:
+            self.eyes_animation = self.animation_generator(
+                self.animation_lib[animation_name],
+                default_delay=default_delay,
+                skip_transition=skip_transition,
+                animation_info_dict= self.eyes_animation_info)
+        else:
+            # TODO: Change this to logging
+            print("set_eyes_animation()")
+            return
 
         self.eyes_last_animation_name = self.eyes_animation_name
         self.eyes_animation_name = animation_name
@@ -400,13 +471,24 @@ class TomoFaceModule():
 
         self.last_eyes_animation_time = pygame.time.get_ticks()
 
-    def set_mouth_animation(self, animation_name, default_delay=1, timeout=None, skip_transition=False):
+    def set_mouth_animation(self, animation_name, default_delay=1, timeout=None,
+                            skip_transition=False, force_reset_animation=False):
         """Set current mouth animation."""
+        # If the same animation is requested,
+        # and no request to replay it is made, return
+        if self.mouth_last_animation_name == animation_name \
+           and not force_reset_animation:
+            return
+
         if self.no_mouth:
             self.mouth_animation_timeout = self.eyes_animation_timeout
             return
 
-        self.mouth_animation = self.animation_generator(self.animation_lib[animation_name], default_delay=default_delay, skip_transition=skip_transition)
+        self.mouth_animation = self.animation_generator(
+            self.animation_lib[animation_name],
+            default_delay=default_delay,
+            skip_transition=skip_transition,
+            animation_info_dict=self.mouth_animation_info)
 
         self.mouth_last_animation_name = self.mouth_animation_name
         self.mouth_animation_name = animation_name
@@ -436,7 +518,11 @@ class TomoFaceModule():
 
     def set_blink_animation(self, name, default_delay=1):
         """Set blink animation."""
-        self.blink_animation = self.animation_generator(idle=self.animation_lib[name]['idle'], skip_transition=True)
+        self.blink_animation = self.animation_generator(
+            idle=self.animation_lib[name]['idle'],
+            skip_transition=True,
+            animation_info_dict=self.eyes_animation_info,
+            animation_name=name)
         self.blink_animation_name = name
 
     def set_eyes_neutral_animation_name(self, name):
@@ -625,11 +711,11 @@ class TomoFaceModule():
             # reset them to the current neutral state (unless they are already there)
             if pygame.time.get_ticks() - self.last_eyes_animation_time > self.eyes_animation_timeout:
                 if self.eyes_animation_name != self.eyes_neutral_animation_name:
-                    self.set_eyes_animation(self.eyes_neutral_animation_name)
+                    self.set_eyes_animation(self.eyes_neutral_animation_name, skip_transition=self.skip_neutral_transition)
 
             if pygame.time.get_ticks() - self.last_mouth_animation_time > self.mouth_animation_timeout:
                 if self.mouth_animation_name != self.mouth_neutral_animation_name:
-                    self.set_mouth_animation(self.mouth_neutral_animation_name)
+                    self.set_mouth_animation(self.mouth_neutral_animation_name, skip_transition=self.skip_neutral_transition)
 
             # Limit the goal requests
             if self.x_goal < 0:
@@ -766,17 +852,20 @@ class TomoFaceModule():
         pygame.quit()
 
 if __name__ == "__main__":
-    pass
-
     face_module = TomoFaceModule(animation_path="tomo_animations", eyes_neutral_animation_name="happy_eyes",
                                  mouth_neutral_animation_name="happy_mouth", blink_animation_name="blink",
-                                 start_display=True, resolution=(1920, 1080),
-                                 no_mouth=False, enable_blink=True, mouth_offset=(0, 0), background_colour=(0, 0, 0),
+                                 start_display=True, resolution=(480, 320),#resolution=(1920, 1080),
+                                 no_mouth=False, enable_blink=True, mouth_offset=(0, 10), background_colour=(0, 0, 0),
                                  y_padding=0.05,
                                  squash_window=0.25,
-                                 squash_amount_x=0.75, squash_amount_y=0.75)
+                                 squash_amount_x=0.75, squash_amount_y=0.75,
+                                 bob_amount=10, bob_frequency=0.4,
+                                 skip_neutral_transition=True)
 
     face_module.animation_lib
+    eyes_animations = [x for x in face_module.animation_lib.keys() if "eyes" in x and not "test" in x]
+    mouth_animations = [x for x in face_module.animation_lib.keys() if "mouth" in x and not "test" in x]
+
 
     time.sleep(5)
     face_module.set_eyes_animation("inlove_eyess", skip_transition=True)
