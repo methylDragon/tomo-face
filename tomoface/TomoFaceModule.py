@@ -672,6 +672,7 @@ class TomoFaceModule():
         self.y_pid_output = y # Init PID output
         self.y = y # Init blit input
 
+        last_blit_rects = []
 
         while self.pygame_running and not self.stop_pygame:
             # If pygame crashes or the user closed the window, quit
@@ -848,20 +849,38 @@ class TomoFaceModule():
                                      * 2 * math.pi
                                      * self.bob_frequency))
 
+            # Track modified areas
+            padding_x = self.display.get_width() // 50
+            padding_y = self.display.get_height() // 50
+
+            blit_rects = last_blit_rects
+            new_blit_rects = []
+
             # Execute the eye translation
             self.display.blit(self.eyes_display_img, (x_eyes_shf, y_eyes_shf + bob))
+            new_blit_rects.append(pygame.Rect((x_eyes_shf - padding_x, y_eyes_shf + bob - padding_y),
+                                  (self.eyes_display_img.get_width() + padding_x * 2,
+                                   self.eyes_display_img.get_height() + padding_y * 2)))
 
             if not self.no_mouth:
                 self.display.blit(self.mouth_display_img, (x_mouth_shf, y_mouth_shf + bob))
+                new_blit_rects.append(pygame.Rect((x_mouth_shf - padding_x, y_mouth_shf + bob - padding_y),
+                                      (self.mouth_display_img.get_width() + padding_x * 2,
+                                       self.mouth_display_img.get_height() + padding_y * 2)))
 
             if self.overlay_image_flag:
                 self.display.blit(self.overlay_image, self.overlay_image_offset)
+                new_blit_rects.append(pygame.Rect(self.overlay_image_offset, self.overlay_image.get_size()))
+
+            last_blit_rects = new_blit_rects
+            blit_rects.extend(new_blit_rects)
 
             # Update the frame and tick the clock (Best effort for 60FPS)
             if self.surface_mode:
                 self.output_surface.blit(self.display, (0,0))
             else:
-                pygame.display.update()
+                # TODO: OPTION TO ROTATE
+                pygame.display.update(blit_rects)
 
             self.clock.tick(self.motion_fps)
 
