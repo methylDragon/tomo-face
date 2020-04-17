@@ -259,7 +259,7 @@ class TomoFaceModule():
 
     def init_pygame(self):
         # Init Pygame
-        pygame.init()
+        pygame.display.init()
 
         # Init Display Parameters
         self.infoObject = pygame.display.Info()
@@ -849,7 +849,7 @@ class TomoFaceModule():
             self.clock.tick(self.motion_fps)
 
         self.pygame_running = False
-        pygame.quit()
+        pygame.display.quit()
 
 if __name__ == "__main__":
     face_module = TomoFaceModule(animation_path="tomo_animations", eyes_neutral_animation_name="happy_eyes",
