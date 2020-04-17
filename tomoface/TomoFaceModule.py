@@ -30,6 +30,7 @@ except:
 
 from threading import Thread
 
+import pkg_resources
 import time
 import math
 import pygame
@@ -61,7 +62,7 @@ import os
 
 
 class TomoFaceModule():
-    def __init__(self, init_pygame=True, animation_path="",
+    def __init__(self, init_pygame=True, animation_path=pkg_resources.resource_filename(__name__, 'media/tomo_animations'),
                  motion_fps=60, animation_fps=24, blink_fps=40,
                  mouth_offset=(0, 0),
                  x_pid={'p': 0.025, 'i': 0.005, 'd': 0.0},
@@ -586,7 +587,10 @@ class TomoFaceModule():
             else:
                 self.display = pygame.display.set_mode(self.display_size, pygame.NOFRAME)
 
-        pygame.display.set_caption('TOMO!')
+        pygame.display.set_icon(pygame.image.load(
+            pkg_resources.resource_filename(__name__,
+                                            'media/tomoface_logo.png')))
+        pygame.display.set_caption('TOMO Face Engine')
 
         self.set_eyes_animation(self.eyes_neutral_animation_name)
         self.set_mouth_animation(self.mouth_neutral_animation_name)
