@@ -20,10 +20,13 @@ Runs two threads:
 - display_update_thread thread
 """
 
+# Import subpackages
 try:
-    from .lib import PIDController
+    import pid
+    import utils
 except:
-    from lib import PIDController
+    pass
+
 from threading import Thread
 
 import time
@@ -37,26 +40,15 @@ import os
 # Helper Functions
 ################################################################################
 
-def is_image_file(filename):
-    """Check if a given file is an image file."""
-    return any([filename.endswith(img_type) for img_type in [".jpg", ".png", ".gif"]])
+# Remove blink when setting animation by setting last blink time forward in the future!
 
 def is_valid_animation(path, verbose=True):
     """Check if a given path is a valid animation folder."""
     try:
         if "idle" in os.listdir(path) or "transition" in os.listdir(path):
-            return True
-        else:
-            if verbose:
-                print(path, "is not a valid animation folder! It needs an /idle or /transition folder!")
-            return False
-    except:
-        return False
 
 def generate_playback_list(data, delimiter=" ", default_delay=1):
     """Parse playback string and generate list of tuples of (frame_index, default_delay)"""
-    if len(data) == 0:
-        return []
 
     playback_list = data.strip().split("\n")
     output = []
@@ -64,72 +56,7 @@ def generate_playback_list(data, delimiter=" ", default_delay=1):
     for row_no, frame in enumerate(playback_list, 1):
         split_frame = tuple([int(x) for x in frame.strip().split(delimiter)])
 
-        assert len(split_frame) <= 2, "Frame %d is of invalid form!" % (row_no)
-
-        if len(split_frame) == 1:
-            output.append((split_frame[0], default_delay))
-        if len(split_frame) == 2:
-            output.append(split_frame)
-
-    return output
-
-def parse_animation_path(path, verbose=True):
-    """Find all valid animations in a directory and load them."""
-    output = {}
-
     # Iterate through all possible paths
-    for folder_path in os.listdir(path):
-        animation_dict = {'transition': [], 'idle': [], 'transition_playback': [], 'idle_playback': [], 'animation_name': ""}
-        animation_path = path + "/" + folder_path
-
-        # And only proceed if the animation path is valid
-        if is_valid_animation(animation_path, verbose):
-            for sub_animation in ["transition", "idle"]:
-                try:
-                    sub_animation_path = animation_path + "/" + sub_animation + "/"
-                    animation_dict['animation_name'] = animation_path
-
-                    filenames = os.listdir(sub_animation_path)
-                    frames = [sub_animation_path + frame for frame in filenames if is_image_file(frame)]
-                    frames.sort()
-                    animation_dict[sub_animation] = frames
-
-                    if "frames" in filenames:
-                        with open(sub_animation_path + "/frames", "r") as f:
-                            animation_dict[sub_animation + "_playback"] = generate_playback_list(f.read())
-                except Exception as e:
-                    print("is_valid_animation():", e)
-
-            output[folder_path] = animation_dict
-
-    return output
-
-# Source http://www.pygame.org/pcr/transform_scale/
-def aspect_scale(img, rescale_tuple):
-    """Get scaled image dimensions while retaining aspect ratio."""
-    bx, by = rescale_tuple
-    ix,iy = img.get_size()
-
-    if ix > iy:
-        scale_factor = bx/float(ix)
-        sy = scale_factor * iy
-        if sy > by:
-            scale_factor = by/float(iy)
-            sx = scale_factor * ix
-            sy = by
-        else:
-            sx = bx
-    else:
-        scale_factor = by/float(iy)
-        sx = scale_factor * ix
-        if sx > bx:
-            scale_factor = bx/float(ix)
-            sx = bx
-            sy = scale_factor * iy
-        else:
-            sy = by
-
-    return int(sx), int(sy)
 
 ################################################################################
 # Class
@@ -157,12 +84,14 @@ class TomoFaceModule():
                  squash_window=0.15, squash_amount_x=0.5, squash_amount_y=0.5,
                  bob_amount=0, bob_frequency=0.2,
                  skip_neutral_transition=False,
-                 performance_mode=False):
+                 performance_mode=False,
+                 stretch_face=False):
 
         self.pygame_running = False
         self.stop_pygame = False
         self.resolution = resolution
         # TODO: Organise these
+        self.stretch_face = stretch_face
         self.y_padding = y_padding
         self.squash_window = squash_window
         self.squash_amount_x = squash_amount_x
@@ -178,8 +107,8 @@ class TomoFaceModule():
             self.init_pygame()
 
         # Init PID controllers
-        self.x_pid = PIDController(x_pid['p'], x_pid['i'], x_pid['d'])
-        self.y_pid = PIDController(y_pid['p'], y_pid['i'], y_pid['d'])
+        self.x_pid = pid.PIDController(x_pid['p'], x_pid['i'], x_pid['d'])
+        self.y_pid = pid.PIDController(y_pid['p'], y_pid['i'], y_pid['d'])
 
         ## Init colours
         self.background_colour = background_colour
@@ -213,11 +142,13 @@ class TomoFaceModule():
 
         ## Init animation library
         self.animation_lib = {}
+        self.animation_path_lib = {}
         self.animation_path = animation_path
 
         ## Init starting animations
         if self.animation_path != "":
             self.add_animations(self.animation_path)
+
 
         # All changes are made to prior, before being processed to the final one
         # This is to ensure there is always a lossless image being used
@@ -296,26 +227,45 @@ class TomoFaceModule():
             if rescale_tuple is None:
                 rescale_tuple = (self.display_width // 2, self.display_height // 2)
 
-            if stretch: # Stretch images to fit display
-                return [pygame.transform.smoothscale(pygame.image.load(image), rescale_tuple) for image in img_path_list]
-            else: # Otherwise, preserve aspect ratio
-                return [pygame.transform.smoothscale(pygame.image.load(image), \
-                        aspect_scale(pygame.image.load(image), rescale_tuple)) \
-                        for image in img_path_list]
+            return utils.load_images(img_path_list, rescale_tuple, stretch)
         else:
             print("Pygame not started! Call init_pygame() to start!")
             return []
 
     def add_single_animation(self, name, sub_name,
-                             img_path_list, playback_list=[],
-                             rescale_tuple=None):
-        """Load single sub-animation."""
-        self.animation_lib[name][sub_name] = self.load_images(img_path_list, rescale_tuple)
+                             img_path_list, playback_list=[]):
+        """Add a single sub-animation to the animation path library."""
+        utils.add_single_animation(name, sub_name, img_path_list, playback_list,
+                                   self.animation_path_lib)
+
+    def add_animations(self, animation_path, verbose=True):
+        """
+        Add animation paths from a given overall path to the animation path library.
+
+        Traverses each generated animation dictionary from the given path,
+        and updates the visual path library.
+
+        This initialises the animation lib lazily!
+        To avoid lazy initialisation, use add_and_load_animations()
+
+        Loading, rescaling, and converting the animation surfaces will happen
+        later when animations are generated."""
+        utils.add_animations(animation_path, verbose, self.animation_path_lib)
+
+    def add_and_load_single_animation(self, name, sub_name,
+                                      img_path_list, playback_list=[],
+                                      rescale_tuple=None):
+        """Add and load a single sub-animation."""
+        utils.add_single_animation(name, sub_name, img_path_list, playback_list)
+
+        self.animation_lib[name][sub_name] = self.load_images(img_path_list, rescale_tuple, stretch=self.stretch_face)
         self.animation_lib[name][sub_name + "_playback"] = playback_list
 
-    def add_animations(self, animation_path, verbose=True, rescale_tuple=None):
+    def add_and_load_animations(self, animation_path, verbose=True, rescale_tuple=None):
         """Load and add animations from a given path."""
-        for animation_name, animation_path_dict in parse_animation_path(animation_path, verbose=True).items():
+        self.add_animations(animation_path, verbose=verbose)
+
+        for animation_name, animation_path_dict in utils.parse_animation_path(animation_path, verbose=verbose).items():
             # Traverse each generated animation dictionary from the path
             # And mutate the overall dictionary by loading all included image paths
             for property, contents in animation_path_dict.items():
@@ -332,7 +282,7 @@ class TomoFaceModule():
                     continue
 
                 # Otherwise, replace all paths in dict with loaded surfaces
-                animation_path_dict[property] = self.load_images(contents, rescale_tuple)
+                animation_path_dict[property] = self.load_images(contents, rescale_tuple, stretch=self.stretch_face)
 
             # And update the visual library
             self.animation_lib[animation_name] = animation_path_dict
@@ -452,6 +402,21 @@ class TomoFaceModule():
            and not force_reset_animation:
             return
 
+        if not animation_name in self.animation_lib:
+            try:
+                animation_dict = \
+                    {'idle': self.load_images(
+                        self.animation_path_lib[animation_name]['idle'],
+                        stretch=self.stretch_face),
+                     'transition': self.load_images(
+                        self.animation_path_lib[animation_name]['transition'],
+                        stretch=self.stretch_face)}
+
+                self.animation_lib[animation_name] = animation_dict
+                self.optimise_animation(animation_name)
+            except Exception as e:
+                print("set_eyes_animation():", e)
+
         # Verify animation exists
         if animation_name in self.animation_lib:
             self.eyes_animation = self.animation_generator(
@@ -487,6 +452,21 @@ class TomoFaceModule():
             self.mouth_animation_timeout = self.eyes_animation_timeout
             return
 
+        if not animation_name in self.animation_lib:
+            try:
+                animation_dict = \
+                    {'idle': self.load_images(
+                        self.animation_path_lib[animation_name]['idle'],
+                        stretch=self.stretch_face),
+                     'transition': self.load_images(
+                        self.animation_path_lib[animation_name]['transition'],
+                        stretch=self.stretch_face)}
+
+                self.animation_lib[animation_name] = animation_dict
+                self.optimise_animation(animation_name)
+            except Exception as e:
+                print("set_mouth_animation():", e)
+
         self.mouth_animation = self.animation_generator(
             self.animation_lib[animation_name],
             default_delay=default_delay,
@@ -519,8 +499,34 @@ class TomoFaceModule():
         """Disable blink."""
         self.enable_blink = False
 
+    def optimise_animation(self, name):
+        try:
+            # Convert animation library to appropriate pixel format
+            for image in self.animation_lib[name]['transition']:
+                image = image.convert_alpha(self.display)
+
+            for image in self.animation_lib[name]['idle']:
+                image = image.convert_alpha(self.display)
+        except:
+            pass
+
     def set_blink_animation(self, name, default_delay=1):
         """Set blink animation."""
+        if not name in self.animation_lib:
+            try:
+                animation_dict = \
+                    {'idle': self.load_images(
+                        self.animation_path_lib[name]['idle'],
+                        stretch=self.stretch_face),
+                     'transition': self.load_images(
+                        self.animation_path_lib[name]['transition'],
+                        stretch=self.stretch_face)}
+
+                self.animation_lib[name] = animation_dict
+                self.optimise_animation(name)
+            except Exception as e:
+                print("set_blink_animation():", e)
+
         self.blink_animation = self.animation_generator(
             idle=self.animation_lib[name]['idle'],
             skip_transition=True,
@@ -589,7 +595,7 @@ class TomoFaceModule():
             pygame.time.delay(1000 // self.blink_fps)
 
     def start_display_threads(self):
-        assert len(self.animation_lib) > 0, "You need animations to start the displays!"
+        assert len(self.animation_path_lib) > 0, "You need animations to start the displays!"
 
         # Open Display, set it to borderless windowed mode
         if self.surface_mode:
@@ -609,6 +615,8 @@ class TomoFaceModule():
 
         self.set_eyes_animation(self.eyes_neutral_animation_name)
         self.set_mouth_animation(self.mouth_neutral_animation_name)
+
+        assert len(self.animation_lib) > 0, "You need valid animations to start the displays!"
 
         Thread(target=self.animation_advance_thread, args=()).start()
         Thread(target=self.display_update_thread, args=()).start()
@@ -888,6 +896,9 @@ class TomoFaceModule():
         pygame.display.quit()
 
 if __name__ == "__main__":
+    import pid
+    import utils
+
     face_module = TomoFaceModule(animation_path="tomo_animations", eyes_neutral_animation_name="happy_eyes",
                                  mouth_neutral_animation_name="happy_mouth", blink_animation_name="blink",
                                  start_display=True, resolution=(480, 320),#resolution=(1920, 1080),
