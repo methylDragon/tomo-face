@@ -28,7 +28,7 @@ try:
 except:
     pass
 
-from threading import Thread
+from threading import Thread, Lock
 
 import pkg_resources
 import time
@@ -75,6 +75,7 @@ class TomoFaceModule():
                  eyes_neutral_animation_name="neutral_eyes",
                  mouth_neutral_animation_name="neutral_mouth",
                  start_display=True,
+                 display_mode=0,
                  no_mouth=False,
                  overlay_image=False, overlay_image_offset=(0,0),
                  resolution=None,
@@ -86,10 +87,12 @@ class TomoFaceModule():
                  performance_mode=False,
                  stretch_face=False):
 
+        self.lock = Lock()
 
         self.pygame_running = False
         self.stop_pygame = False
         self.resolution = resolution
+        self.display_mode=0
         # TODO: Organise these
         self.stretch_face = stretch_face
         self.y_padding = y_padding
@@ -126,6 +129,11 @@ class TomoFaceModule():
         ## Init last animation timeouts
         self.eyes_animation_timeout = 0
         self.mouth_animation_timeout = 0
+
+        ## Init resize buffer and timeout
+        self.resize_buffer = None
+        self.last_resize_time = 0
+
         ## Init default timeouts
         self.default_eyes_animation_timeout = default_eyes_animation_timeout
         self.default_mouth_animation_timeout = default_mouth_animation_timeout
@@ -581,6 +589,59 @@ class TomoFaceModule():
 # Display Threads
 ################################################################################
 
+    def set_resolution(self, resolution, mode=None):
+        """Set display resolution via (width, height)."""
+        self.resolution = resolution
+
+        if mode:
+            self.set_display(mode=mode)
+        else:
+            self.set_display(mode=self.display_mode)
+
+    def set_display(self, mode=None):
+        """
+        Set display mode.
+
+        Modes:
+        0: NOFRAME (borderless windowed)
+        1: RESIZABLE (resizable windowed)
+        2: FULLSCREEN (fullscreen, but not stretched)
+        """
+        if self.surface_mode:
+            self.display = pygame.Surface(self.resolution)
+            self.init_animations()
+            return
+
+        if mode is not None:
+            self.display_mode = mode
+        else:
+            self.display_mode += 1
+
+            if self.display_mode > 2:
+                self.display_mode = 0
+
+        if self.display_mode == 0:
+            self.display = pygame.display.set_mode(self.resolution, pygame.NOFRAME)
+        elif self.display_mode == 1:
+            self.display = pygame.display.set_mode(self.resolution, pygame.RESIZABLE)
+        elif self.display_mode == 2:
+            self.display = pygame.display.set_mode(self.resolution, pygame.FULLSCREEN)
+
+        # Re-init display dimensions
+        self.display_width, self.display_height = self.resolution
+        self.init_animations()
+
+    def init_animations(self):
+        with self.lock:
+            # Init animations
+            self.animation_lib = {}
+
+            if self.enable_blink:
+                self.set_blink_animation(self.blink_animation_name)
+
+            self.set_eyes_animation(self.eyes_neutral_animation_name, force_reset_animation=True, no_blink=True)
+            self.set_mouth_animation(self.mouth_neutral_animation_name, force_reset_animation=True, no_blink=True)
+
     def play_blink(self):
         """Blink!"""
         try:
@@ -598,25 +659,16 @@ class TomoFaceModule():
 
         # Open Display, set it to borderless windowed mode
         if self.surface_mode:
+            self.set_display(self.display_mode)
             print("FaceModule: SURFACE CREATED")
-            if self.resolution:
-                self.display = pygame.Surface(self.resolution)
-            else:
-                self.display = pygame.Surface(self.display_size)
         else:
+            self.set_display(self.display_mode)
             print("FaceModule: DISPLAY CREATED")
-            if self.resolution:
-                self.display = pygame.display.set_mode(self.resolution, pygame.NOFRAME)
-            else:
-                self.display = pygame.display.set_mode(self.display_size, pygame.NOFRAME)
 
         pygame.display.set_icon(pygame.image.load(
             pkg_resources.resource_filename(__name__,
                                             'media/tomoface_logo.png')))
         pygame.display.set_caption('TOMO Face Engine')
-
-        self.set_eyes_animation(self.eyes_neutral_animation_name)
-        self.set_mouth_animation(self.mouth_neutral_animation_name)
 
         assert len(self.animation_lib) > 0, "You need valid animations to start the displays!"
 
@@ -695,9 +747,6 @@ class TomoFaceModule():
 
     def _display_update_thread(self):
         """Handle face movement controls, squishing, and display updates."""
-        self.set_eyes_animation(self.eyes_neutral_animation_name)
-        self.set_mouth_animation(self.mouth_neutral_animation_name)
-
         while self.eyes_display_img_prior is None:
             pass
 
