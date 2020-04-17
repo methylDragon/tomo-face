@@ -156,7 +156,8 @@ class TomoFaceModule():
                  y_padding=0.05,
                  squash_window=0.15, squash_amount_x=0.5, squash_amount_y=0.5,
                  bob_amount=0, bob_frequency=0.2,
-                 skip_neutral_transition=False):
+                 skip_neutral_transition=False,
+                 performance_mode=False):
 
         self.pygame_running = False
         self.stop_pygame = False
@@ -169,6 +170,8 @@ class TomoFaceModule():
         self.bob_amount = bob_amount
         self.bob_frequency = bob_frequency
         self.skip_neutral_transition = skip_neutral_transition
+
+        self.performance_mode = performance_mode
 
         # Init pygame
         if init_pygame:
@@ -300,7 +303,7 @@ class TomoFaceModule():
                         aspect_scale(pygame.image.load(image), rescale_tuple)) \
                         for image in img_path_list]
         else:
-            print("Pygame not started! Call .init_pygame() to start!")
+            print("Pygame not started! Call init_pygame() to start!")
             return []
 
     def add_single_animation(self, name, sub_name,
@@ -669,8 +672,9 @@ class TomoFaceModule():
         self.y_pid_output = y # Init PID output
         self.y = y # Init blit input
 
+
         while self.pygame_running and not self.stop_pygame:
-            # If pygame crashes, quit
+            # If pygame crashes or the user closed the window, quit
             if not self.surface_mode:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -768,25 +772,32 @@ class TomoFaceModule():
             # Note: Upper limit here refers to the magnitude of the y value
             # Higher y values refers to lower screen positions
             if y_face_bottom > y_upper_squash_limit:
-                squash_percentage = (y_face_bottom - y_upper_squash_limit) / (y_upper_limit - y_upper_squash_limit) * 100
-                squashed_eyes_x = self.eyes_width + self.squash_amount_x * squash_percentage
-                squashed_eyes_y = self.eyes_height - self.squash_amount_y * squash_percentage
-
-                self.eyes_display_img = pygame.transform.smoothscale(self.eyes_display_img_prior, (int(squashed_eyes_x), int(squashed_eyes_y))) #display_height // 2))
+                squash_percentage = (y_face_bottom - y_upper_squash_limit) / (y_upper_limit - y_upper_squash_limit)
+                squashed_eyes_x = self.eyes_width * (1 + self.squash_amount_x * squash_percentage)
+                squashed_eyes_y = self.eyes_height * (1 - self.squash_amount_y * squash_percentage)
 
                 x_eyes_shf = self.x - (squashed_eyes_x - self.eyes_width) / 2
                 y_eyes_shf = self.y + (self.eyes_height - squashed_eyes_y) # Compensate for translation due to scale
 
+                if self.performance_mode:
+                    self.eyes_display_img = pygame.transform.scale(self.eyes_display_img_prior, (int(squashed_eyes_x), int(squashed_eyes_y))) #display_height // 2))
+                else:
+                    self.eyes_display_img = pygame.transform.smoothscale(self.eyes_display_img_prior, (int(squashed_eyes_x), int(squashed_eyes_y))) #display_height // 2))
+
+
             # Squash eyes if face is near the top of the screen
             elif y_face_top < y_lower_squash_limit:
-                squash_percentage = (y_face_top - y_lower_squash_limit) / (y_lower_limit - y_lower_squash_limit) * 100
-                squashed_eyes_x = self.eyes_width + self.squash_amount_x * squash_percentage
-                squashed_eyes_y = self.eyes_height - self.squash_amount_y * squash_percentage
+                squash_percentage = (y_face_top - y_lower_squash_limit) / (y_lower_limit - y_lower_squash_limit)
+                squashed_eyes_x = self.eyes_width * (1 + self.squash_amount_x * squash_percentage)
+                squashed_eyes_y = self.eyes_height * (1 - self.squash_amount_y * squash_percentage)
 
                 x_eyes_shf = self.x - (squashed_eyes_x - self.eyes_width) / 2
                 y_eyes_shf = self.y
 
-                self.eyes_display_img = pygame.transform.smoothscale(self.eyes_display_img_prior, (int(squashed_eyes_x), int(squashed_eyes_y))) #display_height // 2))
+                if self.performance_mode:
+                    self.eyes_display_img = pygame.transform.scale(self.eyes_display_img_prior, (int(squashed_eyes_x), int(squashed_eyes_y))) #display_height // 2))
+                else:
+                    self.eyes_display_img = pygame.transform.smoothscale(self.eyes_display_img_prior, (int(squashed_eyes_x), int(squashed_eyes_y))) #display_height // 2))
 
             else:
                 self.eyes_display_img = self.eyes_display_img_prior
@@ -798,25 +809,31 @@ class TomoFaceModule():
 
                 # Squash mouth if face is near the bottom of the screen
                 if y_face_bottom > y_upper_squash_limit:
-                    squash_percentage = (y_face_bottom - y_upper_squash_limit) / (y_upper_limit - y_upper_squash_limit) * 100
-                    squashed_mouth_x = self.mouth_width + self.squash_amount_x * squash_percentage
-                    squashed_mouth_y = self.mouth_height - self.squash_amount_y * squash_percentage
+                    squash_percentage = (y_face_bottom - y_upper_squash_limit) / (y_upper_limit - y_upper_squash_limit)
+                    squashed_mouth_x = self.mouth_width * (1 + self.squash_amount_x * squash_percentage)
+                    squashed_mouth_y = self.mouth_height * (1 - self.squash_amount_y * squash_percentage)
 
                     x_mouth_shf = x_mouth - (squashed_mouth_x - self.mouth_width) / 2
                     y_mouth_shf = y_mouth + (self.mouth_height - squashed_mouth_y) # Compensate for translation due to scale
 
-                    self.mouth_display_img = pygame.transform.smoothscale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
+                    if self.performance_mode:
+                        self.mouth_display_img = pygame.transform.scale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
+                    else:
+                        self.mouth_display_img = pygame.transform.smoothscale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
 
                 # Squash mouth if they're near the top of the screen
                 elif y_face_top < y_lower_squash_limit:
-                    squash_percentage = (y_face_top - y_lower_squash_limit) / (y_lower_limit - y_lower_squash_limit) * 100
-                    squashed_mouth_x = self.mouth_width + self.squash_amount_x * squash_percentage
-                    squashed_mouth_y = self.mouth_height - self.squash_amount_y * squash_percentage
+                    squash_percentage = (y_face_top - y_lower_squash_limit) / (y_lower_limit - y_lower_squash_limit)
+                    squashed_mouth_x = self.mouth_width * (1 + self.squash_amount_x * squash_percentage)
+                    squashed_mouth_y = self.mouth_height * (1 - self.squash_amount_y * squash_percentage)
 
                     x_mouth_shf = x_mouth - (squashed_mouth_x - self.mouth_width) / 2
                     y_mouth_shf = y_mouth
 
-                    self.mouth_display_img = pygame.transform.smoothscale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
+                    if self.performance_mode:
+                        self.mouth_display_img = pygame.transform.scale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
+                    else:
+                        self.mouth_display_img = pygame.transform.smoothscale(self.mouth_display_img_prior, (int(squashed_mouth_x), int(squashed_mouth_y)))
 
                 else:
                     self.mouth_display_img = self.mouth_display_img_prior
