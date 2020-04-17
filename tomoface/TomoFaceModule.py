@@ -86,6 +86,7 @@ class TomoFaceModule():
                  performance_mode=False,
                  stretch_face=False):
 
+
         self.pygame_running = False
         self.stop_pygame = False
         self.resolution = resolution
@@ -122,6 +123,9 @@ class TomoFaceModule():
         self.last_mouth_animation_time = 0
         self.last_blink_time = 0
 
+        ## Init last animation timeouts
+        self.eyes_animation_timeout = 0
+        self.mouth_animation_timeout = 0
         ## Init default timeouts
         self.default_eyes_animation_timeout = default_eyes_animation_timeout
         self.default_mouth_animation_timeout = default_mouth_animation_timeout
@@ -155,23 +159,21 @@ class TomoFaceModule():
         self.eyes_display_img_prior = None
         self.eyes_animation = None
         self.eyes_animation_name = None
-        self.eyes_last_animation_name = None
-        self.eyes_animation_info = {'animation_name': "-",
-                                    'frame': -1,
-                                    'frame_delay': -1,
-                                    'frame_delay_index': -1,
-                                    'state': -1}
+        self.eyes_animation_info_dict = {'animation_name': "-",
+                                        'frame': -1,
+                                        'frame_delay': -1,
+                                        'frame_delay_index': -1,
+                                        'state': -1}
 
         self.mouth_display_img = None
         self.mouth_display_img_prior = None
         self.mouth_animation = None
         self.mouth_animation_name = None
-        self.mouth_last_animation_name = None
-        self.mouth_animation_info = {'animation_name': "-",
-                                     'frame': -1,
-                                     'frame_delay': -1,
-                                     'frame_delay_index': -1,
-                                     'state': -1}
+        self.mouth_animation_info_dict = {'animation_name': "-",
+                                          'frame': -1,
+                                          'frame_delay': -1,
+                                          'frame_delay_index': -1,
+                                          'state': -1}
 
         self.blink_animation = None
 
@@ -200,7 +202,8 @@ class TomoFaceModule():
         if self.resolution:
             self.display_width, self.display_height = self.resolution
         else:
-            (self.display_width, self.display_height) = self.display_size = (self.infoObject.current_w, self.infoObject.current_h)
+            (self.display_width, self.display_height) = (self.infoObject.current_w, self.infoObject.current_h)
+            self.resolution = (self.display_width, self.display_height)
 
         # Init clock
         self.clock = pygame.time.Clock()
@@ -224,7 +227,7 @@ class TomoFaceModule():
         """Compute and load rescaled images as pygame surfaces."""
         if self.pygame_running:
             if rescale_tuple is None:
-                rescale_tuple = (self.display_width // 2, self.display_height // 2)
+                rescale_tuple = (self.resolution[0] // 2, self.resolution[1] // 2)
 
             return load_images(img_path_list, rescale_tuple, stretch)
         else:
@@ -314,7 +317,7 @@ class TomoFaceModule():
                                 animation_info_dict['animation_name'] = animation_name
                             else:
                                 animation_info_dict['animation_name'] = animation_dict['animation_name']
-                        except:
+                        except Exception as e:
                             animation_info_dict['animation_name'] = "ERROR"
 
                         animation_info_dict['state'] = 0
@@ -371,50 +374,70 @@ class TomoFaceModule():
                     yield None
 
     def set_position_goal(self, x, y):
-        """Set target position of face."""
+        """
+        Set top left corner of eyes to an (x, y) position goal.
+
+        The top left corner of the display is (0, 0) and coordinates are (x, y).
+        """
         self.x_goal = x
         self.y_goal = y
 
         self.last_position_time = pygame.time.get_ticks()
 
-    # TODO
     def set_offset_goal(self, x, y):
-        """Set target position of face."""
-        self.x_goal = x
-        self.y_goal = y
+        """
+        Set position goal of eyes center in an (x, y) offset from the center.
+
+        Moving towards the right is in the +x direction.
+        Moving towards the bottom is in the +y direction.
+        """
+        (x_center, y_center) = self.calculate_blit_for_center(self.eyes_display_img_prior)
+
+        self.x_goal = x_center + x
+        self.y_goal = y_center + y
 
         self.last_position_time = pygame.time.get_ticks()
 
     def increment_position_goal(self, x, y):
-        """Increment target position of face."""
+        """
+        Increment current position goal of eyes in the (x, y) direction.
+
+        Moving towards the right is in the +x direction.
+        Moving towards the bottom is in the +y direction.
+        """
         self.x_goal += x
         self.y_goal += y
 
         self.last_position_time = pygame.time.get_ticks()
 
+    def load_animation(self, animation_name):
+        animation_dict = \
+            {'idle': self.load_images(
+                self.animation_path_lib[animation_name]['idle'],
+                stretch=self.stretch_face),
+             'transition': self.load_images(
+                self.animation_path_lib[animation_name]['transition'],
+                stretch=self.stretch_face)}
+
+        self.animation_lib[animation_name] = animation_dict
+        self.optimise_animation(animation_name)
+
     def set_eyes_animation(self, animation_name, default_delay=1, timeout=None,
-                           skip_transition=False, force_reset_animation=False):
+                           skip_transition=False, force_reset_animation=False,
+                           no_blink=False):
         """Set current eye animation."""
         # If the same animation is requested,
         # and no request to replay it is made, return
-        if self.eyes_last_animation_name == animation_name \
+        if self.eyes_animation_name == animation_name \
            and not force_reset_animation:
             return
 
         if not animation_name in self.animation_lib:
             try:
-                animation_dict = \
-                    {'idle': self.load_images(
-                        self.animation_path_lib[animation_name]['idle'],
-                        stretch=self.stretch_face),
-                     'transition': self.load_images(
-                        self.animation_path_lib[animation_name]['transition'],
-                        stretch=self.stretch_face)}
-
-                self.animation_lib[animation_name] = animation_dict
-                self.optimise_animation(animation_name)
+                self.load_animation(animation_name)
             except Exception as e:
                 print("set_eyes_animation():", e)
+                return
 
         # Verify animation exists
         if animation_name in self.animation_lib:
@@ -422,13 +445,12 @@ class TomoFaceModule():
                 self.animation_lib[animation_name],
                 default_delay=default_delay,
                 skip_transition=skip_transition,
-                animation_info_dict= self.eyes_animation_info)
+                animation_info_dict= self.eyes_animation_info_dict)
         else:
             # TODO: Change this to logging
             print("set_eyes_animation()")
             return
 
-        self.eyes_last_animation_name = self.eyes_animation_name
         self.eyes_animation_name = animation_name
 
         if timeout is None:
@@ -436,14 +458,18 @@ class TomoFaceModule():
         else:
             self.eyes_animation_timeout = timeout
 
+        if no_blink:
+            self.last_blink_time = pygame.time.get_ticks() + self.eyes_animation_timeout
+
         self.last_eyes_animation_time = pygame.time.get_ticks()
 
     def set_mouth_animation(self, animation_name, default_delay=1, timeout=None,
-                            skip_transition=False, force_reset_animation=False):
+                            skip_transition=False, force_reset_animation=False,
+                            no_blink=False):
         """Set current mouth animation."""
         # If the same animation is requested,
         # and no request to replay it is made, return
-        if self.mouth_last_animation_name == animation_name \
+        if self.mouth_animation_name == animation_name \
            and not force_reset_animation:
             return
 
@@ -453,32 +479,26 @@ class TomoFaceModule():
 
         if not animation_name in self.animation_lib:
             try:
-                animation_dict = \
-                    {'idle': self.load_images(
-                        self.animation_path_lib[animation_name]['idle'],
-                        stretch=self.stretch_face),
-                     'transition': self.load_images(
-                        self.animation_path_lib[animation_name]['transition'],
-                        stretch=self.stretch_face)}
-
-                self.animation_lib[animation_name] = animation_dict
-                self.optimise_animation(animation_name)
+                self.load_animation(animation_name)
             except Exception as e:
                 print("set_mouth_animation():", e)
+                return
 
         self.mouth_animation = self._animation_generator(
             self.animation_lib[animation_name],
             default_delay=default_delay,
             skip_transition=skip_transition,
-            animation_info_dict=self.mouth_animation_info)
+            animation_info_dict=self.mouth_animation_info_dict)
 
-        self.mouth_last_animation_name = self.mouth_animation_name
         self.mouth_animation_name = animation_name
 
         if timeout is None:
             self.mouth_animation_timeout = self.default_mouth_animation_timeout
         else:
             self.mouth_animation_timeout = timeout
+
+        if no_blink:
+            self.last_blink_time = pygame.time.get_ticks() + self.mouth_animation_timeout
 
         self.last_mouth_animation_time = pygame.time.get_ticks()
 
@@ -529,7 +549,7 @@ class TomoFaceModule():
         self.blink_animation = self._animation_generator(
             idle=self.animation_lib[name]['idle'],
             skip_transition=True,
-            animation_info_dict=self.eyes_animation_info,
+            animation_info_dict=self.eyes_animation_info_dict,
             animation_name=name)
         self.blink_animation_name = name
 
@@ -550,9 +570,9 @@ class TomoFaceModule():
         with an optional offset.
         """
         if display_width is None:
-            display_width = self.display_width
+            display_width = self.resolution[0]
         if display_height is None:
-            display_height = self.display_height
+            display_height = self.resolution[1]
 
         return (display_width // 2 - surface.get_width() // 2 + offset[0],
                 display_height // 2 - surface.get_height() // 2 + offset[1])
@@ -563,12 +583,15 @@ class TomoFaceModule():
 
     def play_blink(self):
         """Blink!"""
-        for i in range(len(self.animation_lib[self.blink_animation_name]['idle'])):
-            if not self.enable_blink:
-                break
+        try:
+            for i in range(len(self.animation_lib[self.blink_animation_name]['idle'])):
+                if not self.enable_blink:
+                    break
 
-            self._advance_eyes_animation(blink=True)
-            pygame.time.delay(1000 // self.blink_fps)
+                self._advance_eyes_animation(blink=True)
+                pygame.time.delay(1000 // self.blink_fps)
+        except Exception as e:
+            print("play_blink():", e)
 
     def start_display_threads(self):
         assert len(self.animation_path_lib) > 0, "You need animations to start the displays!"
@@ -602,13 +625,16 @@ class TomoFaceModule():
 
     def _advance_eyes_animation(self, blink=False):
         """Step eye animation forward one frame."""
-        if blink:
-            self.eyes_display_img_prior = next(self.blink_animation)
-        else:
-            self.eyes_display_img_prior = next(self.eyes_animation)
+        try:
+            if blink:
+                self.eyes_display_img_prior = next(self.blink_animation)
+            else:
+                self.eyes_display_img_prior = next(self.eyes_animation)
 
-        self.eyes_width = self.eyes_display_img_prior.get_width()
-        self.eyes_height = self.eyes_display_img_prior.get_height()
+            self.eyes_width = self.eyes_display_img_prior.get_width()
+            self.eyes_height = self.eyes_display_img_prior.get_height()
+        except Exception as e:
+            print("_advance_eyes_animation():", e)
 
     def _advance_mouth_animation(self):
         """Step mouth animation forward one frame."""
@@ -618,10 +644,13 @@ class TomoFaceModule():
             self.mouth_width = self.eyes_display_img_prior.get_width()
             self.mouth_height = self.eyes_display_img_prior.get_height()
         else:
-            self.mouth_display_img_prior = next(self.mouth_animation)
+            try:
+                self.mouth_display_img_prior = next(self.mouth_animation)
 
-            self.mouth_width = self.mouth_display_img_prior.get_width()
-            self.mouth_height = self.mouth_display_img_prior.get_height()
+                self.mouth_width = self.mouth_display_img_prior.get_width()
+                self.mouth_height = self.mouth_display_img_prior.get_height()
+            except Exception as e:
+                print("_advance_mouth_animation():", e)
 
     def _animation_advance_thread(self):
         """Update which images are used for eyes and mouth."""
@@ -902,14 +931,16 @@ if __name__ == "__main__":
     from utils import add_animations, add_single_animation, \
                       parse_animation_path, load_images
 
-    face_module = TomoFaceModule(animation_path="tomo_animations", eyes_neutral_animation_name="happy_eyes",
+    face_module = TomoFaceModule(eyes_neutral_animation_name="happy_eyes",
                                  mouth_neutral_animation_name="happy_mouth", blink_animation_name="blink",
-                                 start_display=True, resolution=(480, 320),#resolution=(1920, 1080),
+                                 start_display=True,
+                                 # resolution=(1920, 1080),
+                                 resolution=(480, 270),
                                  no_mouth=False, enable_blink=True, mouth_offset=(0, 10), background_colour=(0, 0, 0),
                                  y_padding=0.05,
                                  squash_window=0.25,
-                                 squash_amount_x=0.75, squash_amount_y=0.75,
-                                 bob_amount=10, bob_frequency=0.4,
+                                 squash_amount_x=0.2, squash_amount_y=0.15,
+                                 bob_amount=0, bob_frequency=0.4,
                                  skip_neutral_transition=True)
 
     face_module.animation_lib
