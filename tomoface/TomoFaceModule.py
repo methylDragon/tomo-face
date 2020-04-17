@@ -770,12 +770,37 @@ class TomoFaceModule():
                         self.stop_pygame = True
                         break
 
+            # Handle resize events
+            if event.type == pygame.VIDEORESIZE and self.display_mode == 1:
+                try:
+                    with self.lock:
+                        self.resize_buffer = (event.w, event.h)
+                except Exception as e:
+                    print(e)
+
+            if self.resize_buffer and pygame.time.get_ticks() - self.last_resize_time > 3000:
+                # Filter out minor resizes
+                if max(abs(self.resize_buffer[0] - self.resolution[0]),
+                       abs(self.resize_buffer[1] - self.resolution[1])) > 10:
+                    print("Resize detected! Resizing...")
+
+                    self.set_resolution(self.resize_buffer)
+                    self.resize_buffer = None
+
+                self.last_resize_time = pygame.time.get_ticks()
+
             # Grab key events
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_q]:
                 self.stop_pygame = True
                 break
+
+            if keys[pygame.K_m]:
+                if self.no_mouth:
+                    self.no_mouth = False
+                else:
+                    self.no_mouth = True
 
             if keys[pygame.K_LEFT]:
                 self.x_goal -= 50
