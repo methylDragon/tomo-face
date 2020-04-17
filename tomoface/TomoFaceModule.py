@@ -22,8 +22,9 @@ Runs two threads:
 
 # Import subpackages
 try:
-    import pid
-    import utils
+    from .pid import PIDController
+    from .utils import add_animations, add_single_animation, \
+                       parse_animation_path, load_images
 except:
     pass
 
@@ -107,8 +108,8 @@ class TomoFaceModule():
             self.init_pygame()
 
         # Init PID controllers
-        self.x_pid = pid.PIDController(x_pid['p'], x_pid['i'], x_pid['d'])
-        self.y_pid = pid.PIDController(y_pid['p'], y_pid['i'], y_pid['d'])
+        self.x_pid = PIDController(x_pid['p'], x_pid['i'], x_pid['d'])
+        self.y_pid = PIDController(y_pid['p'], y_pid['i'], y_pid['d'])
 
         ## Init colours
         self.background_colour = background_colour
@@ -227,7 +228,7 @@ class TomoFaceModule():
             if rescale_tuple is None:
                 rescale_tuple = (self.display_width // 2, self.display_height // 2)
 
-            return utils.load_images(img_path_list, rescale_tuple, stretch)
+            return load_images(img_path_list, rescale_tuple, stretch)
         else:
             print("Pygame not started! Call init_pygame() to start!")
             return []
@@ -235,7 +236,7 @@ class TomoFaceModule():
     def add_single_animation(self, name, sub_name,
                              img_path_list, playback_list=[]):
         """Add a single sub-animation to the animation path library."""
-        utils.add_single_animation(name, sub_name, img_path_list, playback_list,
+        add_single_animation(name, sub_name, img_path_list, playback_list,
                                    self.animation_path_lib)
 
     def add_animations(self, animation_path, verbose=True):
@@ -250,13 +251,13 @@ class TomoFaceModule():
 
         Loading, rescaling, and converting the animation surfaces will happen
         later when animations are generated."""
-        utils.add_animations(animation_path, verbose, self.animation_path_lib)
+        add_animations(animation_path, verbose, self.animation_path_lib)
 
     def add_and_load_single_animation(self, name, sub_name,
                                       img_path_list, playback_list=[],
                                       rescale_tuple=None):
         """Add and load a single sub-animation."""
-        utils.add_single_animation(name, sub_name, img_path_list, playback_list)
+        add_single_animation(name, sub_name, img_path_list, playback_list)
 
         self.animation_lib[name][sub_name] = self.load_images(img_path_list, rescale_tuple, stretch=self.stretch_face)
         self.animation_lib[name][sub_name + "_playback"] = playback_list
@@ -265,7 +266,7 @@ class TomoFaceModule():
         """Load and add animations from a given path."""
         self.add_animations(animation_path, verbose=verbose)
 
-        for animation_name, animation_path_dict in utils.parse_animation_path(animation_path, verbose=verbose).items():
+        for animation_name, animation_path_dict in parse_animation_path(animation_path, verbose=verbose).items():
             # Traverse each generated animation dictionary from the path
             # And mutate the overall dictionary by loading all included image paths
             for property, contents in animation_path_dict.items():
@@ -896,8 +897,9 @@ class TomoFaceModule():
         pygame.display.quit()
 
 if __name__ == "__main__":
-    import pid
-    import utils
+    from pid import PIDController
+    from utils import add_animations, add_single_animation, \
+                      parse_animation_path, load_images
 
     face_module = TomoFaceModule(animation_path="tomo_animations", eyes_neutral_animation_name="happy_eyes",
                                  mouth_neutral_animation_name="happy_mouth", blink_animation_name="blink",
