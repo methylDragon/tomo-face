@@ -768,20 +768,40 @@ class TomoFaceModule():
         last_blit_rects = []
 
         while self.pygame_running and not self.stop_pygame:
-            # If pygame crashes or the user closed the window, quit
-            if not self.surface_mode:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
+            # Handle events
+            for event in pygame.event.get():
+                # If pygame crashes or the user closed the window, quit
+                if event.type == pygame.QUIT:
+                    if not self.surface_mode:
                         self.stop_pygame = True
                         break
 
-            # Handle resize events
-            if event.type == pygame.VIDEORESIZE and self.display_mode == 1:
-                try:
-                    with self.lock:
-                        self.resize_buffer = (event.w, event.h)
-                except Exception as e:
-                    print(e)
+                # Handle one-time keypress events
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        self.stop_pygame = True
+                        break
+
+                    if event.key == pygame.K_m:
+                        if self.no_mouth:
+                            self.no_mouth = False
+                        else:
+                            self.no_mouth = True
+
+                    elif event.key == pygame.K_ESCAPE:
+                        self.set_display()
+
+                # Handle mouse events
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.last_blink_time = 0
+
+                # Handle resize events
+                elif event.type == pygame.VIDEORESIZE:
+                    try:
+                        with self.lock:
+                            self.resize_buffer = (event.w, event.h)
+                    except Exception as e:
+                        print(e)
 
             if self.resize_buffer and pygame.time.get_ticks() - self.last_resize_time > 3000:
                 # Filter out minor resizes
@@ -794,35 +814,27 @@ class TomoFaceModule():
 
                 self.last_resize_time = pygame.time.get_ticks()
 
-            # Grab key events
+            # Grab held keys
             keys = pygame.key.get_pressed()
-
-            if keys[pygame.K_q]:
-                self.stop_pygame = True
-                break
-
-            if keys[pygame.K_m]:
-                if self.no_mouth:
-                    self.no_mouth = False
-                else:
-                    self.no_mouth = True
+            key_pressed = False
 
             if keys[pygame.K_LEFT]:
+                key_pressed = True
                 self.x_goal -= 50
 
-            elif keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT]:
+                key_pressed = True
                 self.x_goal += 50
 
-            elif keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN]:
+                key_pressed = True
                 self.y_goal += 50
 
-            elif keys[pygame.K_UP]:
+            if keys[pygame.K_UP]:
+                key_pressed = True
                 self.y_goal -= 50
 
-            elif keys[pygame.K_ESCAPE]:
-                self.set_display()
-
-            else:
+            if not key_pressed:
                 # If there have been no recent position commands, center face
                 if pygame.time.get_ticks() - self.last_position_time > self.position_timeout:
                     (self.x_goal, self.y_goal) = self.calculate_blit_for_center(self.eyes_display_img_prior)
