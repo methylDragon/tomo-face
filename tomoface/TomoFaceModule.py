@@ -642,7 +642,7 @@ class TomoFaceModule():
             self.set_eyes_animation(self.eyes_neutral_animation_name, force_reset_animation=True, no_blink=True)
             self.set_mouth_animation(self.mouth_neutral_animation_name, force_reset_animation=True, no_blink=True)
 
-    def play_blink(self):
+    def play_blink(self, blink_delay=None):
         """Blink!"""
         try:
             for i in range(len(self.animation_lib[self.blink_animation_name]['idle'])):
@@ -650,7 +650,12 @@ class TomoFaceModule():
                     break
 
                 self._advance_eyes_animation(blink=True)
-                pygame.time.delay(1000 // self.blink_fps)
+
+                if blink_delay:
+                    print(blink_delay)
+                    pygame.time.delay(blink_delay // self.blink_fps)
+                else:
+                    pygame.time.delay(1000 // self.blink_fps)
         except Exception as e:
             print("play_blink():", e)
 
