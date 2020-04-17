@@ -17,7 +17,6 @@ class PIDController:
 
         self.reset()
 
-
     def reset(self):
         self.setpoint = 0.0
 
