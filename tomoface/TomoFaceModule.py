@@ -16,8 +16,8 @@ Features:
 - TOMO animation engine
 
 Runs two threads:
-- animation_advance_thread thread
-- display_update_thread thread
+- _animation_advance_thread thread
+- _display_update_thread thread
 """
 
 # Import subpackages
@@ -37,31 +37,28 @@ import random
 import sys
 import os
 
-################################################################################
-# Helper Functions
-################################################################################
+# TODO:
+# Separate PID to its own thread
+# WRITE SET POSITION EQUATION
 
 # Remove blink when setting animation by setting last blink time forward in the future!
 
-def is_valid_animation(path, verbose=True):
-    """Check if a given path is a valid animation folder."""
-    try:
-        if "idle" in os.listdir(path) or "transition" in os.listdir(path):
+# Potentially subclass animation module?
+# ROTATION
+# Rename PID module
+# Figure out last animation name
 
-def generate_playback_list(data, delimiter=" ", default_delay=1):
-    """Parse playback string and generate list of tuples of (frame_index, default_delay)"""
+# TODO:
+# Note that eyes and mouth image resolutions per animation must be identical
 
-    playback_list = data.strip().split("\n")
-    output = []
+# frequency = 0.2
+# print(math.sin(pygame.time.get_ticks() / 1000 * 2 * math.pi * frequency))
 
-    for row_no, frame in enumerate(playback_list, 1):
-        split_frame = tuple([int(x) for x in frame.strip().split(delimiter)])
+## VARIABLE NAMING CONVENTION ## (There are a lot of x and y variables...)
+# x_{NAME} represents a COORDINATE for NAME the x-axis
+# y_{NAME} represents a COORDINATE for NAME in the y-axis
+# {NAME}_x represents an AMOUNT or DIMENSION for NAME in the x-axis
 
-    # Iterate through all possible paths
-
-################################################################################
-# Class
-################################################################################
 
 class TomoFaceModule():
     def __init__(self, init_pygame=True, animation_path="",
@@ -288,7 +285,7 @@ class TomoFaceModule():
             # And update the visual library
             self.animation_lib[animation_name] = animation_path_dict
 
-    def animation_generator(self, animation_dict=None, default_delay=1, transition=[], idle=[],
+    def _animation_generator(self, animation_dict=None, default_delay=1, transition=[], idle=[],
                             transition_playback_list=[], idle_playback_list=[], skip_transition=False,
                             animation_info_dict=None, animation_name=""):
         """Dynamically generate custom animation."""
@@ -333,7 +330,7 @@ class TomoFaceModule():
                     if animation_info_dict:
                         animation_info_dict['frame_delay_index'] = -1
 
-                    print("animation_generator():", e)
+                    print("_animation_generator():", e)
                     print("Transition frame", frame_index,
                           "for", animation_name, "does not exist!")
 
@@ -366,7 +363,7 @@ class TomoFaceModule():
                     if animation_info_dict:
                         animation_info_dict['frame_delay_index'] = -1
 
-                    print("animation_generator():", e)
+                    print("_animation_generator():", e)
                     print("Idle frame", frame_index,
                           "for", animation_name, "does not exist!")
 
@@ -420,7 +417,7 @@ class TomoFaceModule():
 
         # Verify animation exists
         if animation_name in self.animation_lib:
-            self.eyes_animation = self.animation_generator(
+            self.eyes_animation = self._animation_generator(
                 self.animation_lib[animation_name],
                 default_delay=default_delay,
                 skip_transition=skip_transition,
@@ -468,7 +465,7 @@ class TomoFaceModule():
             except Exception as e:
                 print("set_mouth_animation():", e)
 
-        self.mouth_animation = self.animation_generator(
+        self.mouth_animation = self._animation_generator(
             self.animation_lib[animation_name],
             default_delay=default_delay,
             skip_transition=skip_transition,
@@ -528,7 +525,7 @@ class TomoFaceModule():
             except Exception as e:
                 print("set_blink_animation():", e)
 
-        self.blink_animation = self.animation_generator(
+        self.blink_animation = self._animation_generator(
             idle=self.animation_lib[name]['idle'],
             skip_transition=True,
             animation_info_dict=self.eyes_animation_info,
@@ -542,29 +539,6 @@ class TomoFaceModule():
     def set_mouth_neutral_animation_name(self, name):
         """Set default mouth animation."""
         self.mouth_neutral_animation_name = name
-
-    def advance_eyes_animation(self, blink=False):
-        """Step eye animation forward one frame."""
-        if blink:
-            self.eyes_display_img_prior = next(self.blink_animation)
-        else:
-            self.eyes_display_img_prior = next(self.eyes_animation)
-
-        self.eyes_width = self.eyes_display_img_prior.get_width()
-        self.eyes_height = self.eyes_display_img_prior.get_height()
-
-    def advance_mouth_animation(self):
-        """Step mouth animation forward one frame."""
-        if self.no_mouth:
-            self.mouth_display_img_prior = self.eyes_display_img_prior
-
-            self.mouth_width = self.eyes_display_img_prior.get_width()
-            self.mouth_height = self.eyes_display_img_prior.get_height()
-        else:
-            self.mouth_display_img_prior = next(self.mouth_animation)
-
-            self.mouth_width = self.mouth_display_img_prior.get_width()
-            self.mouth_height = self.mouth_display_img_prior.get_height()
 
     def calculate_blit_for_center(self, surface, display_width=None, display_height=None, offset=(0,0)):
         """
@@ -592,7 +566,7 @@ class TomoFaceModule():
             if not self.enable_blink:
                 break
 
-            self.advance_eyes_animation(blink=True)
+            self._advance_eyes_animation(blink=True)
             pygame.time.delay(1000 // self.blink_fps)
 
     def start_display_threads(self):
@@ -619,10 +593,33 @@ class TomoFaceModule():
 
         assert len(self.animation_lib) > 0, "You need valid animations to start the displays!"
 
-        Thread(target=self.animation_advance_thread, args=()).start()
-        Thread(target=self.display_update_thread, args=()).start()
+        Thread(target=self._animation_advance_thread, args=()).start()
+        Thread(target=self._display_update_thread, args=()).start()
 
-    def animation_advance_thread(self):
+    def _advance_eyes_animation(self, blink=False):
+        """Step eye animation forward one frame."""
+        if blink:
+            self.eyes_display_img_prior = next(self.blink_animation)
+        else:
+            self.eyes_display_img_prior = next(self.eyes_animation)
+
+        self.eyes_width = self.eyes_display_img_prior.get_width()
+        self.eyes_height = self.eyes_display_img_prior.get_height()
+
+    def _advance_mouth_animation(self):
+        """Step mouth animation forward one frame."""
+        if self.no_mouth:
+            self.mouth_display_img_prior = self.eyes_display_img_prior
+
+            self.mouth_width = self.eyes_display_img_prior.get_width()
+            self.mouth_height = self.eyes_display_img_prior.get_height()
+        else:
+            self.mouth_display_img_prior = next(self.mouth_animation)
+
+            self.mouth_width = self.mouth_display_img_prior.get_width()
+            self.mouth_height = self.mouth_display_img_prior.get_height()
+
+    def _animation_advance_thread(self):
         """Update which images are used for eyes and mouth."""
         if self.enable_blink:
             self.set_blink_animation(self.blink_animation_name)
@@ -640,8 +637,8 @@ class TomoFaceModule():
 
                 # Play transition-idle animation for some time
                 while pygame.time.get_ticks() - self.last_blink_time < blink_time_to_wait * 1000:
-                    self.advance_eyes_animation()
-                    self.advance_mouth_animation()
+                    self._advance_eyes_animation()
+                    self._advance_mouth_animation()
                     pygame.time.delay(1000 // self.animation_fps)
 
                 self.play_blink() # Blocking!
@@ -653,17 +650,17 @@ class TomoFaceModule():
 
                     # Play transition-idle animation for some time
                     while pygame.time.get_ticks() - self.last_blink_time < blink_time_to_wait * 1000:
-                        self.advance_eyes_animation()
-                        self.advance_mouth_animation()
+                        self._advance_eyes_animation()
+                        self._advance_mouth_animation()
                         pygame.time.delay(1000 // self.animation_fps)
 
                     self.play_blink() # Blocking!
             else:
-                self.advance_eyes_animation()
-                self.advance_mouth_animation()
+                self._advance_eyes_animation()
+                self._advance_mouth_animation()
                 pygame.time.delay(1000 // self.animation_fps)
 
-    def display_update_thread(self):
+    def _display_update_thread(self):
         """Handle face movement controls, squishing, and display updates."""
         self.set_eyes_animation(self.eyes_neutral_animation_name)
         self.set_mouth_animation(self.mouth_neutral_animation_name)
