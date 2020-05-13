@@ -600,14 +600,16 @@ class TomoFaceModule():
         else:
             self.set_display(mode=self.display_mode)
 
-    def set_display(self, mode=None):
+    def set_display(self, mode=None, shift=False):
         """
         Set display mode.
 
         Modes:
-        0: NOFRAME (borderless windowed)
-        1: RESIZABLE (resizable windowed)
+        0: RESIZABLE (resizable windowed)
+        1: NOFRAME (borderless windowed)
         2: FULLSCREEN (fullscreen, but not stretched)
+
+        If shift is true, decrement the mode instead of increment.
         """
         if self.surface_mode:
             self.display = pygame.Surface(self.resolution)
@@ -617,17 +619,22 @@ class TomoFaceModule():
         if mode is not None:
             self.display_mode = mode
         else:
-            self.display_mode += 1
+            if shift:
+                self.display_mode -= 1
+            else:
+                self.display_mode += 1
 
             if self.display_mode > 2:
                 self.display_mode = 0
+            if self.display_mode < 0:
+                self.display_mode = 2
 
         if self.display_mode == 0:
-            print("DISPLAY MODE SET: NOFRAME")
-            self.display = pygame.display.set_mode(self.resolution, pygame.NOFRAME)
-        elif self.display_mode == 1:
             print("DISPLAY MODE SET: RESIZABLE")
             self.display = pygame.display.set_mode(self.resolution, pygame.RESIZABLE)
+        elif self.display_mode == 1:
+            print("DISPLAY MODE SET: NOFRAME")
+            self.display = pygame.display.set_mode(self.resolution, pygame.NOFRAME)
         elif self.display_mode == 2:
             print("DISPLAY MODE SET: FULLSCREEN")
             self.display = pygame.display.set_mode(self.resolution, pygame.FULLSCREEN)
@@ -667,6 +674,7 @@ class TomoFaceModule():
             print("play_blink():", e)
 
     def start_display_threads(self):
+        assert not self.display_running, "Display threads are already running!"
         assert len(self.animation_path_lib) > 0, "You need animations to start the displays!"
 
         # Open Display, set it to borderless windowed mode
@@ -793,14 +801,19 @@ class TomoFaceModule():
                         self.stop_pygame = True
                         break
 
-                    if event.key == pygame.K_m:
+                    elif event.key == pygame.K_m:
                         if self.no_mouth:
                             self.no_mouth = False
                         else:
                             self.no_mouth = True
 
+                    elif event.key == pygame.K_SPACE:
+                        self.last_blink_time = 0
+
+
                     elif event.key == pygame.K_ESCAPE:
-                        self.set_display()
+                        self.set_display(shift=pygame.key.get_mods() \
+                                         & pygame.KMOD_SHIFT)
 
                 # Handle mouse events
                 elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -829,19 +842,19 @@ class TomoFaceModule():
             keys = pygame.key.get_pressed()
             key_pressed = False
 
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 key_pressed = True
                 self.x_goal -= 50
 
-            if keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 key_pressed = True
                 self.x_goal += 50
 
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
                 key_pressed = True
                 self.y_goal += 50
 
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_UP] or keys[pygame.K_w]:
                 key_pressed = True
                 self.y_goal -= 50
 
