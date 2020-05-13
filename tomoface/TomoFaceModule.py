@@ -147,9 +147,9 @@ class TomoFaceModule():
         ## Overlay Image Params
         self.overlay_image_flag = overlay_image
         self.overlay_image_offset = overlay_image_offset
-        self.overlay_image = pygame.Surface((self.display_width, self.display_height))
+        self.overlay_image = pygame.Surface((self.resolution[0], self.resolution[1]))
         self.surface_mode = surface_mode
-        self.output_surface = pygame.Surface((self.display_width, self.display_height))
+        self.output_surface = pygame.Surface((self.resolution[0], self.resolution[1]))
 
         ## Init animation library
         self.animation_lib = {}
@@ -621,14 +621,19 @@ class TomoFaceModule():
                 self.display_mode = 0
 
         if self.display_mode == 0:
+            print("DISPLAY MODE SET: NOFRAME")
             self.display = pygame.display.set_mode(self.resolution, pygame.NOFRAME)
         elif self.display_mode == 1:
+            print("DISPLAY MODE SET: RESIZABLE")
             self.display = pygame.display.set_mode(self.resolution, pygame.RESIZABLE)
         elif self.display_mode == 2:
+            print("DISPLAY MODE SET: FULLSCREEN")
             self.display = pygame.display.set_mode(self.resolution, pygame.FULLSCREEN)
 
         # Re-init display dimensions
-        self.display_width, self.display_height = self.resolution
+        # self.display_width, self.display_height = self.resolution
+
+        self.output_surface = pygame.Surface((self.resolution[0], self.resolution[1]))
         self.init_animations()
 
     def init_animations(self):
@@ -852,17 +857,17 @@ class TomoFaceModule():
             # Limit the goal requests
             if self.x_goal < 0:
                 self.x_goal = 0
-            if self.x_goal > self.display_width - self.eyes_width:
-                self.x_goal = self.display_width - self.eyes_width
+            if self.x_goal > self.resolution[0] - self.eyes_width:
+                self.x_goal = self.resolution[0] - self.eyes_width
 
             if self.no_mouth:
-                y_upper_limit = self.display_height - self.eyes_height * (1 + self.y_padding)
+                y_upper_limit = self.resolution[1] - self.eyes_height * (1 + self.y_padding)
                 y_lower_limit = self.y_padding * self.eyes_height
             elif self.mouth_offset[1] >= 0: # Mouth below eyes
-                y_upper_limit = self.display_height - self.eyes_height * (1 + self.y_padding) - self.mouth_offset[1]
+                y_upper_limit = self.resolution[1] - self.eyes_height * (1 + self.y_padding) - self.mouth_offset[1]
                 y_lower_limit = self.y_padding * self.eyes_height
             else: # Mouth above eyes
-                y_upper_limit = self.display_height - self.eyes_height * (1 + self.y_padding)
+                y_upper_limit = self.resolution[1] - self.eyes_height * (1 + self.y_padding)
                 y_lower_limit = self.y_padding * self.eyes_height - self.mouth_offset[1]
 
             if self.y_goal > y_upper_limit:
@@ -884,15 +889,15 @@ class TomoFaceModule():
                 pass
 
             if self.no_mouth:
-                y_upper_squash_limit = self.display_height - self.eyes_height * (1 + self.squash_window + self.y_padding)
+                y_upper_squash_limit = self.resolution[1] - self.eyes_height * (1 + self.squash_window + self.y_padding)
                 y_lower_squash_limit = (self.squash_window + self.y_padding) * self.eyes_height
                 y_face_top, y_face_bottom = self.y, self.y
             elif self.mouth_offset[1] >= 0: # Mouth below eyes
-                y_upper_squash_limit = self.display_height - self.eyes_height * (1 + self.squash_window + self.y_padding) - self.mouth_offset[1]
+                y_upper_squash_limit = self.resolution[1] - self.eyes_height * (1 + self.squash_window + self.y_padding) - self.mouth_offset[1]
                 y_lower_squash_limit = (self.squash_window + self.y_padding) * self.eyes_height
                 y_face_top, y_face_bottom = self.y, self.y + self.mouth_offset[1]
             else: # Mouth above eyes
-                y_upper_squash_limit = self.display_height - self.eyes_height * (1 + self.squash_window + self.y_padding)
+                y_upper_squash_limit = self.resolution[1] - self.eyes_height * (1 + self.squash_window + self.y_padding)
                 y_lower_squash_limit = (self.squash_window + self.y_padding) * self.eyes_height - self.mouth_offset[1]
                 y_face_top, y_face_bottom = self.y + self.mouth_offset[1], self.y
 
