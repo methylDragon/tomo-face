@@ -62,7 +62,8 @@ import os
 
 
 class TomoFaceModule():
-    def __init__(self, init_pygame=True, animation_path=pkg_resources.resource_filename(__name__, 'media/tomo_animations'),
+    def __init__(self, init_pygame=True,
+                 animation_path=pkg_resources.resource_filename(__name__, 'media/tomo_animations'),
                  motion_fps=60, animation_fps=24, blink_fps=40,
                  mouth_offset=(0, 0),
                  x_pid={'p': 0.025, 'i': 0.005, 'd': 0.0},
@@ -74,7 +75,7 @@ class TomoFaceModule():
                  blink_animation_name="blink", enable_blink=True,
                  eyes_neutral_animation_name="neutral_eyes",
                  mouth_neutral_animation_name="neutral_mouth",
-                 start_display=True,
+                 init_display=True,
                  display_mode=0,
                  no_mouth=False,
                  overlay_image=False, overlay_image_offset=(0,0),
@@ -90,6 +91,7 @@ class TomoFaceModule():
         self.lock = Lock()
 
         self.pygame_running = False
+        self.display_running = False
         self.stop_pygame = False
         self.resolution = resolution
         self.display_mode=0
@@ -197,7 +199,7 @@ class TomoFaceModule():
         self.eyes_neutral_animation_name = eyes_neutral_animation_name
         self.mouth_neutral_animation_name = mouth_neutral_animation_name
 
-        if start_display:
+        if init_display:
             self.start_display_threads()
 
     def init_pygame(self):
@@ -682,6 +684,8 @@ class TomoFaceModule():
 
         assert len(self.animation_lib) > 0, "You need valid animations to start the displays!"
 
+        self.display_running = True
+
         Thread(target=self._animation_advance_thread, args=()).start()
         Thread(target=self._display_update_thread, args=()).start()
 
@@ -720,7 +724,7 @@ class TomoFaceModule():
             self.set_blink_animation(self.blink_animation_name)
 
         # tomo blink animation
-        while self.pygame_running:
+        while self.pygame_running and self.display_running:
             if self.stop_pygame == True:
                 print("BLINK CYCLER TERMINATED")
                 break
@@ -755,6 +759,8 @@ class TomoFaceModule():
                 self._advance_mouth_animation()
                 pygame.time.delay(1000 // self.animation_fps)
 
+        self.display_running = False
+
     def _display_update_thread(self):
         """Handle face movement controls, squishing, and display updates."""
         while self.eyes_display_img_prior is None:
@@ -772,7 +778,7 @@ class TomoFaceModule():
 
         last_blit_rects = []
 
-        while self.pygame_running and not self.stop_pygame:
+        while self.pygame_running and not self.stop_pygame and self.display_running:
             # Handle events
             for event in pygame.event.get():
                 # If pygame crashes or the user closed the window, quit
@@ -1028,6 +1034,7 @@ class TomoFaceModule():
             self.clock.tick(self.motion_fps)
 
         self.pygame_running = False
+        self.display_running = False
         pygame.display.quit()
 
 if __name__ == "__main__":
@@ -1037,7 +1044,7 @@ if __name__ == "__main__":
 
     face_module = TomoFaceModule(eyes_neutral_animation_name="happy_eyes",
                                  mouth_neutral_animation_name="happy_mouth", blink_animation_name="blink",
-                                 start_display=True,
+                                 init_display=True,
                                  # resolution=(1920, 1080),
                                  resolution=(480, 270),
                                  no_mouth=False, enable_blink=True, mouth_offset=(0, 10), background_colour=(0, 0, 0),
