@@ -69,9 +69,9 @@ class TomoAnimationLib():
         if animation_path:
             self.add_animations(animation_path)
 
-    ################################################################################
+    ###########################################################################
     # Processing Methods
-    ################################################################################
+    ###########################################################################
 
     def aspect_scale(self, img, rescale_tuple):
         """
@@ -80,7 +80,7 @@ class TomoAnimationLib():
         Source: http://www.pygame.org/pcr/transform_scale/
         """
         bx, by = rescale_tuple
-        ix,iy = img.get_size()
+        ix, iy = img.get_size()
 
         if ix > iy:
             scale_factor = bx/float(ix)
@@ -106,18 +106,18 @@ class TomoAnimationLib():
     def load_images(self, img_path_list, rescale_tuple=None, stretch=False):
         """Compute and load rescaled images as pygame surfaces."""
         if rescale_tuple:
-            if stretch: # Stretch images to fit display
+            if stretch:  # Stretch images to fit display
                 return [pygame.transform.smoothscale(pygame.image.load(image),
-                                                     rescale_tuple) \
+                                                     rescale_tuple)
                         for image in img_path_list]
 
-            else: # Otherwise, preserve aspect ratio
-                return [pygame.transform.smoothscale(pygame.image.load(image), \
+            else:  # Otherwise, preserve aspect ratio
+                return [pygame.transform.smoothscale(pygame.image.load(image),
                         self.aspect_scale(pygame.image.load(image),
-                                          rescale_tuple)) \
+                                          rescale_tuple))
                         for image in img_path_list]
 
-        else: # If no rescale_tuple is provided, just load images naively
+        else:  # If no rescale_tuple is provided, just load images naively
             return [pygame.image.load(image) for image in img_path_list]
 
     def set_display(self, display):
@@ -130,16 +130,17 @@ class TomoAnimationLib():
     def optimise_animation(self, name):
         if self.display:
             try:
+                frame_lib = self.animation_frame_lib[name]
                 # Convert animation library to appropriate pixel format
-                for image in self.animation_frame_lib[name]['transition']['frames']:
+                for image in frame_lib['transition']['frames']:
                     image = image.convert_alpha(self.display)
 
-                for image in self.animation_lib[name]['idle']['frames']:
+                for image in frame_lib['idle']['frames']:
                     image = image.convert_alpha(self.display)
             except Exception as e:
-                logging.error("%s", e)
+                logger.error("%s", e)
         else:
-            logging.warning("No target display specified to optimise for!")
+            logger.warning("No target display specified to optimise for!")
 
     def _load_animation(self, name, rescale_tuple=None, stretch=False):
         """Load an animation in the path lib into the frame lib."""
@@ -149,13 +150,13 @@ class TomoAnimationLib():
         if paths['transition']['playback']:
             with open(paths['transition']['playback']) as f:
                 transition_playback = self.generate_playback_list(f.read())
-        else: # If no path to playback file exists, create an empty list
+        else:  # If no path to playback file exists, create an empty list
             transition_playback = []
 
         if paths['idle']['playback']:
             with open(paths['idle']['playback']) as f:
                 idle_playback = self.generate_playback_list(f.read())
-        else: # If no path to playback file exists, create an empty list
+        else:  # If no path to playback file exists, create an empty list
             idle_playback = []
 
         # Load images
@@ -171,22 +172,22 @@ class TomoAnimationLib():
         self.animation_frame_lib[name] = \
             {'transition': {'frames': transition_frames,
                             'playback': transition_playback},
-            'idle': {'frames': idle_frames,
-                     'playback': idle_playback},
-            'animation_path': paths['animation_path']}
+             'idle': {'frames': idle_frames,
+                      'playback': idle_playback},
+             'animation_path': paths['animation_path']}
 
         self.optimise_animation(name)
 
-    ################################################################################
+    ###########################################################################
     # Sanity Check Methods
-    ################################################################################
+    ###########################################################################
 
     def is_image_file(self, filename):
         """Check if a given file is a valid image file."""
         try:
-            return any([filename.endswith(img_type) \
+            return any([filename.endswith(img_type)
                         for img_type in [".jpg", ".png", ".gif"]])
-        except:
+        except Exception:
             return False
 
     def is_valid_animation(self, path):
@@ -195,15 +196,15 @@ class TomoAnimationLib():
             if "idle" in os.listdir(path) or "transition" in os.listdir(path):
                 return True
             else:
-                logging.warning("%s is not a valid animation folder!" \
+                logger.warning("%s is not a valid animation folder!"
                                " It needs an /idle or /transition folder!",
                                path)
-        except:
+        except Exception:
             return False
 
-    ################################################################################
+    ###########################################################################
     # IO Methods
-    ################################################################################
+    ###########################################################################
 
     def parse_animation_path(self, path, playback_file="frames"):
         """Find all valid animation paths in a directory and save them."""
@@ -212,9 +213,11 @@ class TomoAnimationLib():
 
         # Iterate through all possible folder paths
         for folder_path in os.listdir(path):
-            # Create path dict for single animation (defined by folders in path)
-            animation_path_dict = {'transition': {'frames': [], 'playback': []},
-                                   'idle': {'frames': [], 'playback': []},
+            # Create path dict for single animation (from folders in path)
+            animation_path_dict = {'transition': {'frames': [],
+                                                  'playback': []},
+                                   'idle': {'frames': [],
+                                            'playback': []},
                                    'animation_path': ""}
             animation_path = path + "/" + folder_path
 
@@ -229,8 +232,8 @@ class TomoAnimationLib():
                         animation_path_dict['animation_path'] = animation_path
 
                         # Construct sorted list of paths to valid frames
-                        frames = [sub_animation_path + frame \
-                                  for frame in filenames \
+                        frames = [sub_animation_path + frame
+                                  for frame in filenames
                                   if self.is_image_file(frame)]
                         frames.sort()
                         animation_path_dict[sub_animation]['frames'] = frames
@@ -270,10 +273,12 @@ class TomoAnimationLib():
             output = []
 
             for row, frame in enumerate(playback_list, 1):
-                split_frame = tuple([int(x) \
-                for x in frame.strip().split(delimiter)])
+                split_frame = tuple(
+                    [int(x) for x in frame.strip().split(delimiter)]
+                )
 
-                assert len(split_frame) <= 2, "Frame %d is of invalid form!" % (row)
+                assert len(split_frame) <= 2, "Frame %d is of invalid form!" \
+                    % (row)
 
                 if len(split_frame) == 1:
                     output.append((split_frame[0], default_repeats))
@@ -291,7 +296,7 @@ class TomoAnimationLib():
         assert all(self.is_image_file(path) for path in img_path_list), \
             (
                 "Paths in the given path list are not valid image paths: %s" %
-                str([path for path in img_path_list \
+                str([path for path in img_path_list
                      if not self.is_image_file(path)])
             )
 
@@ -361,9 +366,9 @@ class TomoAnimationLib():
 
         return self.animation_path_lib, self.animation_frame_lib
 
-    ################################################################################
+    ###########################################################################
     # Animation Management Methods
-    ################################################################################
+    ###########################################################################
 
     def load_animation(self, name, rescale_tuple=None, stretch=False):
         """Load an animation in the path lib into the frame lib."""
@@ -377,14 +382,14 @@ class TomoAnimationLib():
             self._load_animation(name, rescale_tuple=None, stretch=False)
 
     def unload_animations(self):
-        """Unload animation images to clear memory."""
+        """Unload animation frame images to clear memory."""
         self.animation_frame_lib = {}
 
-    def unload_animation(self):
-        """Unload animation images to clear memory."""
+    def unload_animation(self, name):
+        """Unload animation frame images to clear memory."""
         try:
             self.animation_frame_lib.pop(name)
-        except:
+        except Exception:
             pass
 
     def remove_animations(self):
@@ -393,11 +398,11 @@ class TomoAnimationLib():
         self.animation_path_lib = {}
 
     def remove_animation(self, name):
-        """Remove a single from the frame and path libraries."""
+        """Remove a single animation from the frame and path libraries."""
         try:
             self.animation_path_lib.pop(name)
             self.animation_frame_lib.pop(name)
-        except:
+        except Exception:
             pass
 
     # TODO: get_animation()
@@ -406,6 +411,8 @@ class TomoAnimationLib():
             self._load_animation(name, rescale_tuple, stretch)
 
         # TODO: Create Animation() here!
+
+
 
 if __name__ == "__main__":
     test_lib = TomoAnimationLib("media/tomo_animations")
