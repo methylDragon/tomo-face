@@ -28,11 +28,14 @@ import pygame
 import os
 
 # Init logger
-logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+
 
 class TomoAnimationLib():
     """
-    TOMOFACE module for importing, loading, and generating animations from an animation directory
+    TOMOFACE module for importing, loading, and generating animations from an
+    animation directory
 
     Notes
     -----
@@ -240,7 +243,7 @@ class TomoAnimationLib():
                             animation_path_dict[sub_animation]['playback'] = ""
 
                     except Exception as e:
-                        logging.error("%s", e)
+                        logger.error("%s", e)
 
                 paths[folder_path] = animation_path_dict
 
