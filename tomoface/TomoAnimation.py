@@ -50,8 +50,8 @@ class TomoAnimation():
         """
 
         # Init output frame variables
-        self.frame = pygame.Surface  # Current output frame
-        self._frame_prior = pygame.Surface  # Private pre-processed frame
+        self.frame = pygame.Surface((0, 0))  # Current output frame
+        self._frame_prior = pygame.Surface((0, 0))  # Pre-processed frame
 
         # Init animation detail vars
         self.animation_name = animation_dict['animation_path']
