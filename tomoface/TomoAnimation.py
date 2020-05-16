@@ -35,6 +35,7 @@ logger.addHandler(logging.NullHandler())
 class TomoAnimation():
     def __init__(self,
                  animation_dict,
+                 name="",
                  default_delay=1,
                  default_skip=1,
                  skip_transition=False,
@@ -54,7 +55,8 @@ class TomoAnimation():
         self._frame_prior = pygame.Surface((0, 0))  # Pre-processed frame
 
         # Init animation detail vars
-        self.animation_name = animation_dict['animation_path']
+        self.animation_name = name
+        self.animation_path = animation_dict['animation_path']
 
         self.idle_frames = animation_dict['idle']['frames']
         self.transition_frames = animation_dict['transition']['frames']
@@ -92,7 +94,7 @@ class TomoAnimation():
     def __iter__(self):
         return self.sequence
 
-    def update(self, animation_dict, default_delay=None,
+    def update(self, animation_dict, default_delay=None, default_skip=None,
                skip_transition=None, animation_info_dict=None,
                reset=False):
         """Update animation attributes."""
@@ -103,6 +105,8 @@ class TomoAnimation():
         self.idle_playback = animation_dict['idle']['playback']
         self.transition_playback = animation_dict['transition']['playback']
 
+        if default_skip:
+            self.default_skip = default_skip
         if default_delay:
             self.default_delay = default_delay
         if skip_transition:
@@ -162,6 +166,9 @@ class TomoAnimation():
             return self.frame
 
     # Getters
+    def get_name(self):
+        return self.animation_name
+
     def get_frame_size(self):
         return self.frame.get_size()
 
@@ -217,12 +224,8 @@ class TomoAnimation():
                 try:
                     if self.animation_info_dict:
                         try:
-                            if self.animation_name:
-                                self.animation_info_dict['animation_name'] \
-                                    = self.animation_name
-                            else:
-                                self.animation_info_dict['animation_name'] \
-                                    = self.animation_dict['animation_name']
+                            self.animation_info_dict['animation_name'] \
+                                = self.animation_name
                         except Exception:
                             self.animation_info_dict['animation_name'] \
                                 = "ERROR"

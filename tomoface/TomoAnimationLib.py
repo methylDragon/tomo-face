@@ -13,15 +13,15 @@ Author: github.com/methylDragon
 [TOMOFACE-AnimationLib: Animation Library Submodule]
 
 Features:
-- Importing, loading, processing, and generating animations from an animation directory
+- Importing, loading, processing, and generating animations from an animation
+  directory
     - With sanity checks!
 - On-demand/lazy initialisation
 - Animation generation
 - Image optimisation and scaling
 """
 
-# Get animation
-# Generate animation (custom)
+from TomoAnimation import TomoAnimation
 
 import logging
 import pygame
@@ -83,19 +83,19 @@ class TomoAnimationLib():
         ix, iy = img.get_size()
 
         if ix > iy:
-            scale_factor = bx/float(ix)
+            scale_factor = bx / float(ix)
             sy = scale_factor * iy
             if sy > by:
-                scale_factor = by/float(iy)
+                scale_factor = by / float(iy)
                 sx = scale_factor * ix
                 sy = by
             else:
                 sx = bx
         else:
-            scale_factor = by/float(iy)
+            scale_factor = by / float(iy)
             sx = scale_factor * ix
             if sx > bx:
-                scale_factor = bx/float(ix)
+                scale_factor = bx / float(ix)
                 sx = bx
                 sy = scale_factor * iy
             else:
@@ -126,6 +126,7 @@ class TomoAnimationLib():
             "Display must be of type pygame.Surface!"
 
         self.display = display
+        self.unload_animations()
 
     def optimise_animation(self, name):
         if self.display:
@@ -405,13 +406,85 @@ class TomoAnimationLib():
         except Exception:
             pass
 
-    # TODO: get_animation()
-    def get_animation(self, name, rescale_tuple=None, stretch=False):
-        if name not in self.animation_frame_lib:
-            self._load_animation(name, rescale_tuple, stretch)
+    def create_animation(self, name, rescale_tuple=None, stretch=False,
+                         default_delay=1, default_skip=1,
+                         skip_transition=False, animation_info_dict=None):
+        try:
+            # If animation has not been initialised (from lazy initialisation)
+            # Or the animation needs to be scaled, reload it
+            if name not in self.animation_frame_lib or rescale_tuple:
+                self._load_animation(name, rescale_tuple, stretch)
 
-        # TODO: Create Animation() here!
+            return TomoAnimation(self.animation_frame_lib[name],
+                                 name,
+                                 default_delay=default_delay,
+                                 default_skip=default_skip,
+                                 skip_transition=skip_transition,
+                                 animation_info_dict=animation_info_dict)
+        except Exception as e:
+            logger.error(e)
 
+    # TODO: Update animation (preserve sequence position, update images)
+    def update_animation(self, animation,
+                         rescale_tuple=None, stretch=False,
+                         transition_playback=None, idle_playback=None,
+                         default_delay=1, default_skip=1,
+                         skip_transition=False, animation_info_dict=None,
+                         reset=False):
+        """
+        Attempt to an animation while preserving its sequence.
+
+        You can update:
+        - Animation source images
+        - Animation playback list
+        - Animation configurations
+            - Default skip
+            - Default delay
+            - Transition skip
+            - Info dict reference
+        - And you can also reset the animation!
+
+        Warnings
+        --------
+        This function should only be used to give an animation scaled versions
+        of its current images and/or an altered but valid playback list based
+        on its original.
+
+        If you want to completely create a new animation, you are better off
+        creating a new animation instance using create_animation().
+
+        Notes
+        -----
+        Animation playback sequence will only update once it completes its idle
+        loop. But animation images should update immediately.
+
+        Also, ensure new image list is at least the size of the current
+        animation!
+        """
+        name = animation.get_name()
+
+        # Reload frame library for specified animation if needed
+        # This also checks if the animation exists within the library!
+        try:
+            if name not in self.animation_frame_lib or rescale_tuple:
+                self._load_animation(name, rescale_tuple, stretch)
+        except Exception as e:
+            logger.error(e)
+
+        # Update playback lists if called for
+        if transition_playback:
+            self.animation_frame_lib[name]['transition']['playback'] \
+                = transition_playback
+        if idle_playback:
+            self.animation_frame_lib[name]['transition']['playback'] \
+                = idle_playback
+
+        animation.update(self.animation_frame_lib[name],
+                         default_delay=default_delay,
+                         default_skip=default_skip,
+                         skip_transition=skip_transition,
+                         animation_info_dict=animation_info_dict,
+                         reset=reset)
 
 
 if __name__ == "__main__":
