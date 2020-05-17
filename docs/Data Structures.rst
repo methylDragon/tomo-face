@@ -50,22 +50,22 @@ Ordering Frames
 
   As a result, it is heavily advised to name frames:
 
-  - 01.png
-  - 02.png
-  - 03.png
+  - ``01.png``
+  - ``02.png``
+  - ``03.png``
   - ...
 
-  Or 001.png, 002.png, 003.png, etc. depending on your needs.
+  Or ``001.png``, ``002.png``, ``003.png``, etc. depending on your needs.
 
   **IT IS NOT RECOMMENDED TO NAME FRAMES**:
 
-  - 1.png
-  - 2.png
-  - 3.png
+  - ``1.png``
+  - ``2.png``
+  - ``3.png``
   - ...
 
-  As this will cause issues when there are more than 10 frames, since 1 and 10
-  will be played first before 2, which is an issue that is hard to debug unless
+  As this will cause issues when there are more than 10 frames, since ``1`` and ``10``
+  will be played first before ``2``, which is an issue that is hard to debug unless
   you know to look for it. (And has noting to do with the code!)
 
   But honestly, it is up to you do decide on what naming conventions you want
@@ -75,15 +75,15 @@ Ordering Frames
 
 Valid Image Types
 *****************
-The valid image types are `.gif`, `.jpg`, `.png`.
+The valid image types are ``.gif``, ``.jpg``, ``.png``.
 
 Animation Names
 ***************
-In this case, each folder (e.g. `animation_name_1`) denotes the name of the
+In this case, each folder (e.g. ``animation_name_1``) denotes the name of the
 animation that that folder describes!
 
-In so doing, if you wanted to grab the `animation_name_1` animation, you would
-grab it using the name: `animation_name_1`.
+In so doing, if you wanted to grab the ``animation_name_1`` animation, you would
+grab it using the name: ``animation_name_1``.
 
 Subanimations: Idle and Transition
 **********************************
@@ -99,12 +99,12 @@ If you do not want an animation to play its transition you can:
 
   - Include **no** transition frames in the directory.
   - Configure the :class:`~TomoAnimation.TomoAnimation()` object to skip playing
-    any loaded transition frames by passing in the `skip_transition` parameter
+    any loaded transition frames by passing in the ``skip_transition`` parameter
     on instantiation or :class:`~TomoAnimation.TomoAnimation.update()`.
 
 Optional Playback File (frames)
 *******************************
-The frames file, which denotes a custom `playback list` is optional!
+The frames file, which denotes a custom ``playback list`` is optional!
 
 If you leave it blank or omit it, the animation frames will played
 **sequentially in alphanumeric order**.
@@ -130,7 +130,7 @@ that causes animation frames to be played sequentially in alphanumeric order.
   to be played per loop, where each frame is delimited by newlines,
   and each frame has an optional number of times to repeat that frame.
 
-  By default your playback file should be called `frames`.
+  By default your playback file should be called ``frames``.
 
 Example
 *******
@@ -140,21 +140,25 @@ The following playback file (with " " as delimiter):
     |  2 2
     |  3 3
 
-Would result in playback list: `[(1, 1), (2, 2), (3,3)]`, causing
+Would result in playback list: ``[(1, 1), (2, 2), (3, 3)]``, causing
 the following to play in order per loop:
 
-- Frame 1 to be played once
-- Frame 2 to be played twice
-- Frame 3 to be played thrice
+- Frame 1 to be played **once**
+- Frame 2 to be played **twice**
+- Frame 3 to be played **thrice**
 
-Optionally, if `default_repeats` is set to 1 in the parser,
+Optionally, if ``default_repeats`` is set to ``1`` in the parser,
 then the playback list can be written as:
 
     |  1
     |  2 2
     |  3 3
 
-Resulting in playback list: `[(1, 1), (2, 2), (3,3)]`
+Resulting in playback list: ``[(1, 1), (2, 2), (3, 3)]``
+
+Notice that this allows you to **omit** the repeat number, which
+can be very convenient when you have a lot of frames that you want to
+play at some specified number of repeats!
 
 Furthermore, playback does not need to go in order!
     |  1
@@ -162,7 +166,7 @@ Furthermore, playback does not need to go in order!
     |  1
     |  2 2
 
-Would result in playback list: `[(1, 1), (3, 2), (1, 1) , (2, 2)]`
+Would result in playback list: ``[(1, 1), (3, 2), (1, 1) , (2, 2)]``
 Causing the following to play in order per loop:
 
 - Frame 1 to be played once
@@ -172,11 +176,11 @@ Causing the following to play in order per loop:
 
 Frame Numbers
 *************
-If the directory had frames 01.png, 02.png, 03.png, then:
+If the directory had frames ``01.png``, ``02.png``, ``03.png``, then:
 
-  - Frame number 1 would be 01.png
-  - Frame number 2 would be 02.png
-  - Frame number 2 would be 03.png
+  - Frame number ``1`` would be ``01.png``
+  - Frame number ``2`` would be ``02.png``
+  - Frame number ``2`` would be ``03.png``
 
 This is because 01, 02, and 03 would be sorted in that order!
 
@@ -187,6 +191,18 @@ Gotcha: Specifying Frame Numbers
   is the **frame number**. You must only specify frame numbers!
 
   Do **not** specify the name of the frame!
+
+Gotcha: Repeats and Frames Per Second (FPS)
+*******************************************
+.. warning::
+  Note that the frame repeat structure is **not** meant to control FPS.
+
+  Whatever surrounding player program that iterates the
+  :class:`~TomoAnimation.TomoAnimation()` object's sequence will be
+  in charge of playing it at some FPS.
+
+  The repeat structure is there to help animators easily control the 
+  playback flow of an animation, **independent of FPS**!
 
 Animation Libraries
 ###################
@@ -215,15 +231,15 @@ The generic animation library used by
   }
 
 Each animation is given its own dictionary **keyed by name**, and within each
-of those, notice that there are subanimation dictionaries `transition` and
-`idle` for the subanimations.
+of those, notice that there are subanimation dictionaries ``transition`` and
+``idle`` for the subanimations.
 
-Each subanimation dictionary contains `frames` and `playback`
+Each subanimation dictionary contains ``frames`` and ``playback``
 elements.
 
-- `frames`: Refers to the individual frame images that make up a subanimation
-- `playback`: Refers to the playback list for that subanimation
-- `animation_path`: Refers to the path of the animation
+- ``frames``: Refers to the individual frame images that make up a subanimation
+- ``playback``: Refers to the playback list for that subanimation
+- ``animation_path``: Refers to the path of the animation
 
 Path and Frame Dictionaries
 ***************************
@@ -233,7 +249,7 @@ Each :class:`~TomoAnimationLib.TomoAnimationLib()` instance will contain
 dictionaries.
 
 Each of these dictionaries are structured identically (with the small caveat
-that the `playback` element is a string for the
+that the ``playback`` element is a string for the
 :attr:`~TomoAnimationLib.TomoAnimationLib.animation_path_lib`), with the
 only other difference being what is **contained** within them.
 
@@ -268,29 +284,29 @@ Structure::
    'frame_repeat_index': -1,
    'state': -1}
 
-Notice that the elements are initialised as `-1`.
+Notice that the elements are initialised as ``-1``.
 
 Its elements are:
 
-  - `animation_name`: The name of the animation being played.
-  - `frame`: The frame number.
-  - `frame_repeats`: The number of times to repeat the current frame.
-  - `frame_repeat_index`: The number of times the frame has been repeated for
+  - ``animation_name``: The name of the animation being played.
+  - ``frame``: The frame number.
+  - ``frame_repeats``: The number of times to repeat the current frame.
+  - ``frame_repeat_index``: The number of times the frame has been repeated for
     this play of the frame
-  - `state`: The animation state.
+  - ``state``: The animation state.
 
-    - `-1` for uninitialised
-    - `0` for transition
-    - `1` for idle
+    - ``-1`` for uninitialised
+    - ``0`` for transition
+    - ``1`` for idle
 
 .. warning::
   **Frame Index Woes**
 
-  Note that the frame index specified in `frame` is **not** the index of the
+  Note that the frame index specified in ``frame`` is **not** the index of the
   frame in the subanimation's frame list.
 
   It is instead the number of the frame when the subanimation's directory is
   sorted alphanumerically.
 
-  So, if the directory had frames 01.png, 02.png, 03.png, then frame number 1
-  would be 01.png.
+  So, if the directory had frames ``01.png``, ``02.png``, ``03.png``, then 
+  frame number ``1`` would be ``01.png``.
