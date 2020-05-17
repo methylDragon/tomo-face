@@ -1,28 +1,36 @@
 """
 Author: github.com/methylDragon
 
-████████╗ ██████╗ ███╗   ███╗ ██████╗ ██╗
-╚══██╔══╝██╔═══██╗████╗ ████║██╔═══██╗██║
-   ██║   ██║   ██║██╔████╔██║██║   ██║██║
-   ██║   ██║   ██║██║╚██╔╝██║██║   ██║╚═╝
-   ██║   ╚██████╔╝██║ ╚═╝ ██║╚██████╔╝██╗
-   ╚═╝    ╚═════╝ ╚═╝     ╚═╝ ╚═════╝ ╚═╝
+████████╗░██████╗░███╗░░░███╗░██████╗░██╗
+╚══██╔══╝██╔═══██╗████╗░████║██╔═══██╗██║
+░░░██║░░░██║░░░██║██╔████╔██║██║░░░██║██║
+░░░██║░░░██║░░░██║██║╚██╔╝██║██║░░░██║╚═╝
+░░░██║░░░╚██████╔╝██║░╚═╝░██║╚██████╔╝██╗
+░░░╚═╝░░░░╚═════╝░╚═╝░░░░░╚═╝░╚═════╝░╚═╝
 
-      - Making Devices Friendlier -
+      ~ Making Devices Friendlier ~
 
-[TOMOFACE-Animation: Animation Submodule]
+[TomoFACE-Animation: Animation Submodule]
 
 A manageable sequence of frames and a playback list that handles on-demand
 'lossless' image scaling.
 
 Features:
-- Frame sequence management (reset, skips, advances)
-- Interface for image properties
-- On-demand image scaling that preserves image quality over repeated scales
-- Animation real-time information tracking
+    - Frame sequence management (reset, skips, advances)
+    - Interface for image properties
+    - On-demand image scaling that preserves image quality over repeated scales
+    - Animation real-time information tracking
+
+Animation dict is of structure:
+
+{'transition': {'frames': [],
+                'playback': []},
+ 'idle': {'frames': [],
+          'playback': []},
+ 'animation_path': ""}
 """
 
-# Get height/width
+# TODO: DOCUMENT
 
 import pygame
 import logging
@@ -36,20 +44,10 @@ class TomoAnimation():
     def __init__(self,
                  animation_dict,
                  name="",
-                 default_delay=1,
-                 default_skip=1,
+                 default_repeats=1,
+                 default_skips=1,
                  skip_transition=False,
                  animation_info_dict=None):
-        """
-        Animation dict is of structure:
-
-        {'transition': {'frames': [],
-                        'playback': []},
-         'idle': {'frames': [],
-                  'playback': []},
-         'animation_path': ""}
-        """
-
         # Init output frame variables
         self.frame = pygame.Surface((0, 0))  # Current output frame
         self._frame_prior = pygame.Surface((0, 0))  # Pre-processed frame
@@ -65,24 +63,12 @@ class TomoAnimation():
         self.transition_playback = animation_dict['transition']['playback']
 
         # Init configuration vars
-        self.default_delay = default_delay
-        self.default_skip = default_skip
+        self.default_repeats = default_repeats
+        self.default_skips = default_skips
         self.skip_transition = skip_transition
 
         # Init info tracking var
         self.animation_info_dict = animation_info_dict
-
-        # If no playback list is passed, generate one
-        if len(self.transition_playback) == 0:
-            self.transition_playback = [
-                (x, self.default_delay)
-                for x in range(len(self.transition_frames))
-            ]
-
-        if len(self.idle_playback) == 0:
-            self.idle_playback = [
-                (x, self.default_delay) for x in range(len(self.idle_frames))
-            ]
 
         # Generate animation sequence iterator and running tracking vars
         self.sequence = self._sequence()
@@ -94,7 +80,7 @@ class TomoAnimation():
     def __iter__(self):
         return self.sequence
 
-    def update(self, animation_dict, default_delay=None, default_skip=None,
+    def update(self, animation_dict, default_repeats=None, default_skips=None,
                skip_transition=None, animation_info_dict=None,
                reset=False):
         """Update animation attributes."""
@@ -105,10 +91,10 @@ class TomoAnimation():
         self.idle_playback = animation_dict['idle']['playback']
         self.transition_playback = animation_dict['transition']['playback']
 
-        if default_skip:
-            self.default_skip = default_skip
-        if default_delay:
-            self.default_delay = default_delay
+        if default_skips:
+            self.default_skips = default_skips
+        if default_repeats:
+            self.default_repeats = default_repeats
         if skip_transition:
             self.skip_transition = skip_transition
         if animation_info_dict:
@@ -128,7 +114,7 @@ class TomoAnimation():
                 rescale_tuple=None, inplace=False, smooth=True):
         """Advance animation sequence, with optional scaling."""
         if not skip:
-            skip = self.default_skip
+            skip = self.default_skips
 
         for skips in range(skip):
             self._frame_prior = next(self.sequence)
@@ -180,6 +166,18 @@ class TomoAnimation():
 
     def _sequence(self):
         """Dynamically generated custom animation iterable sequence."""
+        # If no playback list is passed, generate one
+        if len(self.transition_playback) == 0:
+            self.transition_playback = [
+                (x, self.default_repeats)
+                for x in range(len(self.transition_frames))
+            ]
+
+        if len(self.idle_playback) == 0:
+            self.idle_playback = [
+                (x, self.default_repeats) for x in range(len(self.idle_frames))
+            ]
+
         # Play transition
         if not self.skip_transition:
             for frame_index, frame_delay in self.transition_playback:

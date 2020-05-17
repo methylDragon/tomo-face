@@ -1,0 +1,886 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>TomoAnimations (Subpackage) &mdash; TomoFACE - Facial Animation Character Engine  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="TomoFACE" href="TomoFACE.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TomoFACE - Facial Animation Character Engine
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Data Structures.html">Data Structure Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TomoFACE.html">TomoFACE</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TomoAnimations (Subpackage)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-TomoAnimationLib">TomoAnimationLib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-TomoAnimation">TomoAnimation</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TomoFACE - Facial Animation Character Engine</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>TomoAnimations (Subpackage)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/TomoAnimations.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tomoanimations-subpackage">
+<h1>TomoAnimations (Subpackage)<a class="headerlink" href="#tomoanimations-subpackage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-TomoAnimationLib">
+<span id="tomoanimationlib"></span><h2>TomoAnimationLib<a class="headerlink" href="#module-TomoAnimationLib" title="Permalink to this headline">¶</a></h2>
+<p>Author: github.com/methylDragon</p>
+<p>████████╗░██████╗░███╗░░░███╗░██████╗░██╗
+╚══██╔══╝██╔═══██╗████╗░████║██╔═══██╗██║
+░░░██║░░░██║░░░██║██╔████╔██║██║░░░██║██║
+░░░██║░░░██║░░░██║██║╚██╔╝██║██║░░░██║╚═╝
+░░░██║░░░╚██████╔╝██║░╚═╝░██║╚██████╔╝██╗
+░░░╚═╝░░░░╚═════╝░╚═╝░░░░░╚═╝░╚═════╝░╚═╝</p>
+<blockquote>
+<div><p>~ Making Devices Friendlier ~</p>
+</div></blockquote>
+<p>[TomoFACE-AnimationLib: Animation Library Submodule]</p>
+<dl>
+<dt>Description:</dt><dd><p>TomoFACE module for importing, loading, generating, and managing animations
+from an animation directory.</p>
+</dd>
+<dt>Features:</dt><dd><ul>
+<li><p>Animation management for animations from an animation directory (With     sanity checks!):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Importing</p></li>
+<li><p>Loading</p></li>
+<li><p>Processing</p></li>
+<li><p>Generating animations</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>On-demand/lazy initialisation</p></li>
+<li><p>Image optimisation and scaling</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Processing Methods:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.aspect_scale" title="TomoAnimationLib.TomoAnimationLib.aspect_scale"><code class="xref py py-meth docutils literal notranslate"><span class="pre">aspect_scale()</span></code></a>: Get scaled image dimensions while retaining aspect ratio.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.load_images" title="TomoAnimationLib.TomoAnimationLib.load_images"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_images()</span></code></a>: Compute and load rescaled images as pygame surfaces.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.set_display" title="TomoAnimationLib.TomoAnimationLib.set_display"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_display()</span></code></a>: Set pygame display object tooptimise images towards.</p></li>
+</ul>
+</dd>
+<dt>Sanity Check Methods:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.is_image_file" title="TomoAnimationLib.TomoAnimationLib.is_image_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">is_image_file()</span></code></a>: Check if a given file is a valid image file.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.is_valid_animation" title="TomoAnimationLib.TomoAnimationLib.is_valid_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">is_valid_animation()</span></code></a>: Check if a given path is a valid animation directory.</p></li>
+</ul>
+</dd>
+<dt>IO Methods:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.add_animations" title="TomoAnimationLib.TomoAnimationLib.add_animations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_animations()</span></code></a>: Get scaled image dimensions while retaining aspect ratio.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.add_and_load_animations" title="TomoAnimationLib.TomoAnimationLib.add_and_load_animations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_and_load_animations()</span></code></a>: Load and add animations from a path.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.add_single_subanimation" title="TomoAnimationLib.TomoAnimationLib.add_single_subanimation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_single_subanimation()</span></code></a>: Add a single sub-animation into path lib without loading it.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.add_and_load_single_subanimation" title="TomoAnimationLib.TomoAnimationLib.add_and_load_single_subanimation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_and_load_single_subanimation()</span></code></a>: Add and load a single sub-animation.</p></li>
+</ul>
+</dd>
+<dt>Animation Management Methods:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.load_animations" title="TomoAnimationLib.TomoAnimationLib.load_animations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_animations()</span></code></a>: Load all animations in the path lib into the frame lib.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.load_animation" title="TomoAnimationLib.TomoAnimationLib.load_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_animation()</span></code></a>: Load an animation in the path lib into the frame lib.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.unload_animation" title="TomoAnimationLib.TomoAnimationLib.unload_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">unload_animation()</span></code></a>: Unload a single animation’s frame images to clear memory.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.unload_animations" title="TomoAnimationLib.TomoAnimationLib.unload_animations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">unload_animations()</span></code></a>: Unload animation frame images to clear memory.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.remove_animation" title="TomoAnimationLib.TomoAnimationLib.remove_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">remove_animation()</span></code></a>: Remove a single animation from the frame and path libraries.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.remove_animations" title="TomoAnimationLib.TomoAnimationLib.remove_animations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">remove_animations()</span></code></a>: Remove animations from the frame and path libraries.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.create_animation" title="TomoAnimationLib.TomoAnimationLib.create_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_animation()</span></code></a>: Create and configure a playable <code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimation()</span></code>.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.update_animation" title="TomoAnimationLib.TomoAnimationLib.update_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_animation()</span></code></a>: Update an animation while preserving its sequence and state.</p></li>
+</ul>
+</dd>
+<dt>Private Methods:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib._optimise_animation" title="TomoAnimationLib.TomoAnimationLib._optimise_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_optimise_animation()</span></code></a>: Optimise image format for an animation’s images.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib._load_animation" title="TomoAnimationLib.TomoAnimationLib._load_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_load_animation()</span></code></a>: Load an animation in the path lib into the frame lib.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib._parse_animation_path" title="TomoAnimationLib.TomoAnimationLib._parse_animation_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_parse_animation_path()</span></code></a>: Parse all valid animation paths in a directory as a dict.</p></li>
+<li><p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib._generate_playback_list" title="TomoAnimationLib.TomoAnimationLib._generate_playback_list"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_generate_playback_list()</span></code></a>: Parse playback file and generate playback list.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="TomoAnimationLib.TomoAnimationLib">
+<em class="property">class </em><code class="sig-prename descclassname">TomoAnimationLib.</code><code class="sig-name descname">TomoAnimationLib</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">animation_path</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">display</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib" title="Permalink to this definition">¶</a></dt>
+<dd><p>TomoFACE module for importing, loading, generating, and managing animations
+from an animation directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>animation_path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to overall animation directory.
+Defaults to “”.</p></li>
+<li><p><strong>display</strong> (<em>pygame.Display</em><em>, </em><em>optional</em>) – Pygame Display object to target
+animations towards. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="TomoAnimationLib.TomoAnimationLib.animation_frame_lib">
+<code class="sig-name descname">animation_frame_lib</code><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.animation_frame_lib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded animation frames and playback lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="TomoAnimationLib.TomoAnimationLib.animation_path_lib">
+<code class="sig-name descname">animation_path_lib</code><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.animation_path_lib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Paths to animation frames and playback
+lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="TomoAnimationLib.TomoAnimationLib.animation_path">
+<code class="sig-name descname">animation_path</code><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.animation_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to overall animation directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="TomoAnimationLib.TomoAnimationLib.display">
+<code class="sig-name descname">display</code><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pygame Display object to target
+animations towards.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>pygame.Display or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Animations consist of transition and idle frames.</p>
+<p>On animation change, transition frames will play, and then idle frames
+will loop.</p>
+</div>
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">animation_path</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">display</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>animation_path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to overall animation
+directory. Defaults to “”.</p></li>
+<li><p><strong>display</strong> (<em>pygame.Display</em><em>, </em><em>optional</em>) – Pygame Display object to target
+animations towards. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib._generate_playback_list">
+<code class="sig-name descname">_generate_playback_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">delimiter</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">default_repeats</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib._generate_playback_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse playback file and generate playback list.</p>
+<p>A playback file is any text file that denotes a sequence of frames
+to be played per loop, where each frame is delimited by newlines,
+and each frame has an optional number of times to repeat that frame.</p>
+<p>A playback list is a list of tuples of (frame_index, times_to_repeat)
+which governs how a particular animation is played.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>str</em>) – The string from the playback file.</p></li>
+<li><p><strong>delimited</strong> (<em>str</em><em>, </em><em>optional</em>) – The delimiter to separate frame number
+and number of repeats per line. Defaults to ” “.</p></li>
+<li><p><strong>default_repeats</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of times to repeat
+playing a frame if no repeats were specified. Defaults to 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The playback list.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>For information on playback lists, see: <a class="reference internal" href="Data Structures.html"><span class="doc">Data Structure Overview</span></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib._load_animation">
+<code class="sig-name descname">_load_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">rescale_tuple</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stretch</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib._load_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load an animation in the path lib into the frame lib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the animation to load.</p></li>
+<li><p><strong>rescale_tuple</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Dimensions to scale images
+to. Defaults to None. Leave as default to not scale images.</p></li>
+<li><p><strong>stretch</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, scales images while disregarding
+aspect ratio. Otherwise, preserves aspect ratio when scaling.
+Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib._optimise_animation" title="TomoAnimationLib.TomoAnimationLib._optimise_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_optimise_animation()</span></code></a></p>
+</div>
+<dl>
+<dt>‏‎Note:</dt><dd><p>Private wrapper of the <cite>load_animation()</cite> method that also
+generates playback lists.</p>
+<p>Also causes loaded animations to be automatically optimised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib._optimise_animation">
+<code class="sig-name descname">_optimise_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib._optimise_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimise image format for an animation’s images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – The name of the animation that will be optimised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib._parse_animation_path">
+<code class="sig-name descname">_parse_animation_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">playback_file</span><span class="o">=</span><span class="default_value">'frames'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib._parse_animation_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse all valid animation paths in a directory as a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path to animation directory.</p></li>
+<li><p><strong>playback_file</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of playback file.
+Defaults to “frames”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting animation path lib.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.add_and_load_animations">
+<code class="sig-name descname">add_and_load_animations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">animation_path</span></em>, <em class="sig-param"><span class="n">rescale_tuple</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stretch</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.add_and_load_animations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load and add animations from a path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>animation_path</strong> (<em>str</em>) – The path to the animation directories.</p></li>
+<li><p><strong>rescale_tuple</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Dimensions to scale images
+to. Defaults to None. Leave as default to not scale images.</p></li>
+<li><p><strong>stretch</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, scales images while disregarding
+aspect ratio. Otherwise, preserves aspect ratio when scaling.
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting animation path and frame libs.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(dict, dict)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>‏‎Note:</dt><dd><p>This causes the animation path and frame libs to be modified
+in-place!</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.add_and_load_single_subanimation">
+<code class="sig-name descname">add_and_load_single_subanimation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">sub_name</span></em>, <em class="sig-param"><span class="n">img_path_list</span></em>, <em class="sig-param"><span class="n">playback_list</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">rescale_tuple</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stretch</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.add_and_load_single_subanimation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add and load a single sub-animation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>animation_path</strong> (<em>str</em>) – The path to the animation directories.</p></li>
+<li><p><strong>rescale_tuple</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Dimensions to scale images
+to. Defaults to None. Leave as default to not scale images.</p></li>
+<li><p><strong>stretch</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, scales images while disregarding
+aspect ratio. Otherwise, preserves aspect ratio when scaling.
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting animation path and frame libs.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(dict, dict)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>‏‎Note:</dt><dd><p>This causes the animation path and frame libs to be modified
+in-place!</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.add_animations">
+<code class="sig-name descname">add_animations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">animation_path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.add_animations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add animations from a path to path lib without loading them.</p>
+<p>Traverses each generated animation dictionary from the given path,
+and updates the path lib.</p>
+<p>This initialises the animation libraries lazily to save memory!
+To avoid lazy initialisation, use add_and_load_animations()</p>
+<p>Loading, rescaling, and converting the animation surfaces will happen
+later when animations are used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>animation_path</strong> (<em>str</em>) – The path to the animation directories.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting animation path lib.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>‏‎Note:</dt><dd><p>This causes the animation path lib to be modified in-place!</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.add_single_subanimation">
+<code class="sig-name descname">add_single_subanimation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">sub_name</span></em>, <em class="sig-param"><span class="n">img_path_list</span></em>, <em class="sig-param"><span class="n">playback_list</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.add_single_subanimation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a single sub-animation into path lib without loading it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the animation.</p></li>
+<li><p><strong>sub_name</strong> (<em>str</em>) – The sub-name of the animation.
+{“idle”, “transition”}.</p></li>
+<li><p><strong>img_path_list</strong> (<em>list of str</em>) – List of paths to images to load.</p></li>
+<li><p><strong>playbac_list</strong> (<em>list of</em><em> (</em><em>int</em><em>, </em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Playback list for
+animation. Defaults to [].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting animation path lib.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>‏‎Note:</dt><dd><p>This causes the animation path lib to be modified in-place!</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.aspect_scale">
+<code class="sig-name descname">aspect_scale</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">rescale_tuple</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.aspect_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get scaled image dimensions while retaining aspect ratio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img</strong> (<em>pygame.Surface</em>) – Image to scale</p></li>
+<li><p><strong>rescale_tuple</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – Target scale dimensions
+as a tuple of (width, height).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tuple of (scaled_width, scaled_height) that preserves
+aspect ratio.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(int, int)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Source:</dt><dd><p><a class="reference external" href="http://www.pygame.org/pcr/transform_scale/">http://www.pygame.org/pcr/transform_scale/</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.create_animation">
+<code class="sig-name descname">create_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">rescale_tuple</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stretch</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">default_repeats</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">default_skips</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">skip_transition</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">animation_info_dict</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.create_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create and configure a playable
+<code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimation()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rescale_tuple</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Dimensions to scale animation
+images to.
+Defaults to None. Leave as default to not scale images.</p></li>
+<li><p><strong>stretch</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, scales animation images while
+disregarding aspect ratio.
+Otherwise, preserves aspect ratio when scaling.
+Defaults to False.</p></li>
+<li><p><strong>default_repeats</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of times to repeat each
+frame if no frame repeats were specified for that frame in the
+playback list. Defaults to 1.</p></li>
+<li><p><strong>default_skips</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of times to advance the
+animation iterator on each advance call. Defaults to 1.</p></li>
+<li><p><strong>skip_transition</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, animation will skip
+playing its transition. Defaults to False.</p></li>
+<li><p><strong>animation_info_dict</strong> (<em>dict</em><em>, </em><em>optional</em>) – Pass in a <cite>dict</cite> object
+to track animation info. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The configured</dt><dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimation()</span></code> object.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimation()</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.is_image_file">
+<code class="sig-name descname">is_image_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.is_image_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a given file is a valid image file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if image file has a valid extension, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.is_valid_animation">
+<code class="sig-name descname">is_valid_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.is_valid_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a given path is a valid animation directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if directory is valid, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.load_animation">
+<code class="sig-name descname">load_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">rescale_tuple</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stretch</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.load_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load an animation in the path lib into the frame lib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Animation name.</p></li>
+<li><p><strong>rescale_tuple</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Dimensions to scale animation
+images to.
+Defaults to None. Leave as default to not scale images.</p></li>
+<li><p><strong>stretch</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, scales animation images while
+disregarding aspect ratio.
+Otherwise, preserves aspect ratio when scaling.
+Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.load_animations">
+<code class="sig-name descname">load_animations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rescale_tuple</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stretch</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.load_animations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load all animations in the path lib into the frame lib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rescale_tuple</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Dimensions to scale animation
+images to.
+Defaults to None. Leave as default to not scale images.</p></li>
+<li><p><strong>stretch</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, scales animation images while
+disregarding aspect ratio.
+Otherwise, preserves aspect ratio when scaling.
+Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.load_images">
+<code class="sig-name descname">load_images</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img_path_list</span></em>, <em class="sig-param"><span class="n">rescale_tuple</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stretch</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.load_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute and load rescaled images as pygame surfaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img_path_list</strong> (<em>list of str</em>) – List of paths to images to load.</p></li>
+<li><p><strong>rescale_tuple</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Dimensions to scale images
+to. Defaults to None. Leave as default to not scale images.</p></li>
+<li><p><strong>stretch</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, scales images while disregarding
+aspect ratio. Otherwise, preserves aspect ratio when scaling.
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The loaded image, scaled if requested.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pygame.Surface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.remove_animation">
+<code class="sig-name descname">remove_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.remove_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a single animation from the frame and path libraries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Animation name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.remove_animations">
+<code class="sig-name descname">remove_animations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.remove_animations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove animations from the frame and path libraries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.set_display">
+<code class="sig-name descname">set_display</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">display</span></em>, <em class="sig-param"><span class="n">skip_unload</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.set_display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set pygame display object to optimise images towards.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>display</strong> (<em>pygame.Surface</em>) – Target display to optimise towards.</p></li>
+<li><p><strong>skip_unload</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, does not unload animations
+after setting display. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.unload_animation">
+<code class="sig-name descname">unload_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.unload_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unload a single animation’s frame images to clear memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Animation name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.unload_animations">
+<code class="sig-name descname">unload_animations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.unload_animations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unload animation frame images to clear memory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="TomoAnimationLib.TomoAnimationLib.update_animation">
+<code class="sig-name descname">update_animation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">animation</span></em>, <em class="sig-param"><span class="n">rescale_tuple</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stretch</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">transition_playback</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">idle_playback</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default_repeats</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">default_skips</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">skip_transition</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">animation_info_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reset</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TomoAnimationLib.TomoAnimationLib.update_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update an animation while preserving its sequence and state.</p>
+<dl class="simple">
+<dt>Updatable attributes:</dt><dd><ul class="simple">
+<li><p>Animation source images</p></li>
+<li><p>Animation playback list</p></li>
+<li><dl class="simple">
+<dt>Animation configurations</dt><dd><ul>
+<li><p>Default skip</p></li>
+<li><p>Default delay</p></li>
+<li><p>Transition skip</p></li>
+<li><p>Info dict reference</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>And you can also reset the animation!</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>animation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimation()</span></code>) – The
+<code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimation()</span></code> object to configure.</p></li>
+<li><p><strong>rescale_tuple</strong> (<em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>, </em><em>optional</em>) – Dimensions to scale animation
+images to.
+Defaults to None. Leave as default to not scale images.</p></li>
+<li><p><strong>stretch</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, scales animation images while
+disregarding aspect ratio.
+Otherwise, preserves aspect ratio when scaling.
+Defaults to False.</p></li>
+<li><p><strong>default_repeats</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of times to repeat each
+frame if no frame repeats were specified for that frame in the
+playback list. Defaults to 1.</p></li>
+<li><p><strong>default_skips</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of times to advance the
+animation iterator on each advance call. Defaults to 1.</p></li>
+<li><p><strong>skip_transition</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, animation will skip
+playing its transition. Defaults to False.</p></li>
+<li><p><strong>animation_info_dict</strong> (<em>dict</em><em>, </em><em>optional</em>) – Pass in a <cite>dict</cite> object
+to track animation info. Defaults to None.</p></li>
+<li><p><strong>reset</strong> (<em>bool</em><em>, </em><em>optional</em>) – Reset animation’s sequence, and play from
+beginning. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>When Rescaling Animations</strong></p>
+<p>This method should be called whenever any display rescaling
+happens and animations need to be rescaled in order to rescale the
+animations!</p>
+<p>It is not automatically called by this library because a default
+resolution to scale animations automatically by is not obvious for
+all possible use-cases.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Proper Update Usage</strong></p>
+<p>This method should only be used to give an animation scaled
+versions of its current images and/or an altered but valid playback
+list based on its original.</p>
+<p>You must ensure that the animation has been added to the
+<a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib" title="TomoAnimationLib.TomoAnimationLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimationLib()</span></code></a>!</p>
+<p>If you want to completely create a new animation, you are better
+off creating a new animation instance using
+<a class="reference internal" href="#TomoAnimationLib.TomoAnimationLib.create_animation" title="TomoAnimationLib.TomoAnimationLib.create_animation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_animation()</span></code></a>.</p>
+</div>
+<dl>
+<dt>‏‎Note:</dt><dd><p>Animation playback sequence will only update once it completes its
+idle loop. But animation images should update immediately.</p>
+<p>Also, ensure new image list is at least the size of the current
+animation!</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-TomoAnimation">
+<span id="tomoanimation"></span><h2>TomoAnimation<a class="headerlink" href="#module-TomoAnimation" title="Permalink to this headline">¶</a></h2>
+<p>Author: github.com/methylDragon</p>
+<p>████████╗░██████╗░███╗░░░███╗░██████╗░██╗
+╚══██╔══╝██╔═══██╗████╗░████║██╔═══██╗██║
+░░░██║░░░██║░░░██║██╔████╔██║██║░░░██║██║
+░░░██║░░░██║░░░██║██║╚██╔╝██║██║░░░██║╚═╝
+░░░██║░░░╚██████╔╝██║░╚═╝░██║╚██████╔╝██╗
+░░░╚═╝░░░░╚═════╝░╚═╝░░░░░╚═╝░╚═════╝░╚═╝</p>
+<blockquote>
+<div><p>~ Making Devices Friendlier ~</p>
+</div></blockquote>
+<p>[TomoFACE-Animation: Animation Submodule]</p>
+<p>A manageable sequence of frames and a playback list that handles on-demand
+‘lossless’ image scaling.</p>
+<dl class="simple">
+<dt>Features:</dt><dd><ul class="simple">
+<li><p>Frame sequence management (reset, skips, advances)</p></li>
+<li><p>Interface for image properties</p></li>
+<li><p>On-demand image scaling that preserves image quality over repeated scales</p></li>
+<li><p>Animation real-time information tracking</p></li>
+</ul>
+</dd>
+</dl>
+<p>Animation dict is of structure:</p>
+<dl>
+<dt>{‘transition’: {‘frames’: [],</dt><dd><blockquote>
+<div><p>‘playback’: []},</p>
+</div></blockquote>
+<dl class="simple">
+<dt>‘idle’: {‘frames’: [],</dt><dd><p>‘playback’: []},</p>
+</dd>
+</dl>
+<p>‘animation_path’: “”}</p>
+</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="TomoFACE.html" class="btn btn-neutral float-left" title="TomoFACE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, methylDragon
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

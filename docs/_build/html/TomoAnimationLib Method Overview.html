@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>&lt;no title&gt; &mdash; TomoFACE - Facial Animation Character Engine  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TomoFACE - Facial Animation Character Engine
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Data Structures.html">Data Structure Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TomoFACE.html">TomoFACE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TomoAnimations.html">TomoAnimations (Subpackage)</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TomoFACE - Facial Animation Character Engine</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/TomoAnimationLib Method Overview.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <dl class="simple">
+<dt>Processing Methods:</dt><dd><ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">aspect_scale()</span></code>: Get scaled image dimensions while retaining aspect ratio.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_images()</span></code>: Compute and load rescaled images as pygame surfaces.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_display()</span></code>: Set pygame display object tooptimise images towards.</p></li>
+</ul>
+</dd>
+<dt>Sanity Check Methods:</dt><dd><ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">is_image_file()</span></code>: Check if a given file is a valid image file.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">is_valid_animation()</span></code>: Check if a given path is a valid animation directory.</p></li>
+</ul>
+</dd>
+<dt>IO Methods:</dt><dd><ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_animations()</span></code>: Get scaled image dimensions while retaining aspect ratio.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_and_load_animations()</span></code>: Load and add animations from a path.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_single_subanimation()</span></code>: Add a single sub-animation into path lib without loading it.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_and_load_single_subanimation()</span></code>: Add and load a single sub-animation.</p></li>
+</ul>
+</dd>
+<dt>Animation Management Methods:</dt><dd><ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_animations()</span></code>: Load all animations in the path lib into the frame lib.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_animation()</span></code>: Load an animation in the path lib into the frame lib.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">unload_animation()</span></code>: Unload a single animation’s frame images to clear memory.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">unload_animations()</span></code>: Unload animation frame images to clear memory.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">remove_animation()</span></code>: Remove a single animation from the frame and path libraries.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">remove_animations()</span></code>: Remove animations from the frame and path libraries.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_animation()</span></code>: Create and configure a playable <code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimation()</span></code>.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_animation()</span></code>: Update an animation while preserving its sequence and state.</p></li>
+</ul>
+</dd>
+<dt>Private Methods:</dt><dd><ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_optimise_animation()</span></code>: Optimise image format for an animation’s images.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_load_animation()</span></code>: Load an animation in the path lib into the frame lib.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_parse_animation_path()</span></code>: Parse all valid animation paths in a directory as a dict.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_generate_playback_list()</span></code>: Parse playback file and generate playback list.</p></li>
+</ul>
+</dd>
+</dl>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, methylDragon
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,532 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data Structure Overview &mdash; TomoFACE - Facial Animation Character Engine  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TomoFACE" href="TomoFACE.html" />
+    <link rel="prev" title="Test" href="test.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TomoFACE - Facial Animation Character Engine
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Structure Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#animation-directory-structure">Animation Directory Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ordering-frames">Ordering Frames</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#valid-image-types">Valid Image Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#animation-names">Animation Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subanimations-idle-and-transition">Subanimations: Idle and Transition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-playback-file-frames">Optional Playback File (frames)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#playback-lists">Playback Lists</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#frame-numbers">Frame Numbers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gotcha-specifying-frame-numbers">Gotcha: Specifying Frame Numbers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#animation-libraries">Animation Libraries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dictionary-structure">Dictionary Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#path-and-frame-dictionaries">Path and Frame Dictionaries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#animation-info-dictionaries">Animation Info Dictionaries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="TomoFACE.html">TomoFACE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TomoAnimations.html">TomoAnimations (Subpackage)</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TomoFACE - Facial Animation Character Engine</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Data Structure Overview</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Data Structures.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-structure-overview">
+<h1>Data Structure Overview<a class="headerlink" href="#data-structure-overview" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="animation-directory-structure">
+<h2>Animation Directory Structure<a class="headerlink" href="#animation-directory-structure" title="Permalink to this headline">¶</a></h2>
+<p><cite>TomoAnimations</cite> contains a <a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib" title="TomoAnimationLib.TomoAnimationLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimationLib()</span></code></a> class
+that is able to parse a given path to an animation directory to automatically
+populate path and frame libraries for animations to be played from.</p>
+<p>This provides a code-less interface to add on to the available animations that
+can be played using the <code class="xref py py-class docutils literal notranslate"><span class="pre">TomoFACE()</span></code>. Which helps facilitate
+work with artists.</p>
+<div class="section" id="structure">
+<h3>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h3>
+<p>An example directory structure is shown as such, you can denote as many
+animations as you wish!</p>
+<p>Example directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>└── animation_directory_path
+    ├── animation_name_1
+    │   ├── transition
+    │   │   ├── 01.png
+    │   │   ├── 02.png
+    │   │   └── 03.png
+    │   └── idle
+    │       ├── 01.png
+    │       ├── 02.png
+    │       ├── 03.png
+    │       ├── ...
+    │       └── frames
+    ├── animation_name_2
+    │   ├── transition
+    │   │   ├── 01.png
+    │   │   ├── 02.png
+    │   │   └── 03.png
+    │   └── idle
+    │       ├── 01.png
+    │       ├── 02.png
+    │       ├── 03.png
+    │       ├── ...
+    │       └── frames
+    ...
+</pre></div>
+</div>
+</div>
+<div class="section" id="ordering-frames">
+<h3>Ordering Frames<a class="headerlink" href="#ordering-frames" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Frame numbers are assigned based off of alphanumberic order!</p>
+<p>As a result, it is heavily advised to name frames:</p>
+<ul class="simple">
+<li><p>01.png</p></li>
+<li><p>02.png</p></li>
+<li><p>03.png</p></li>
+<li><p>…</p></li>
+</ul>
+<p>Or 001.png, 002.png, 003.png, etc. depending on your needs.</p>
+<p><strong>IT IS NOT RECOMMENDED TO NAME FRAMES</strong>:</p>
+<ul class="simple">
+<li><p>1.png</p></li>
+<li><p>2.png</p></li>
+<li><p>3.png</p></li>
+<li><p>…</p></li>
+</ul>
+<p>As this will cause issues when there are more than 10 frames, since 1 and 10
+will be played first before 2, which is an issue that is hard to debug unless
+you know to look for it. (And has noting to do with the code!)</p>
+<p>But honestly, it is up to you do decide on what naming conventions you want
+to you for your frames. All that matters is that they are sorted
+alphanumerically correctly, and it is intuitive to see what frame number each
+frame corresponds to.</p>
+</div>
+</div>
+<div class="section" id="valid-image-types">
+<h3>Valid Image Types<a class="headerlink" href="#valid-image-types" title="Permalink to this headline">¶</a></h3>
+<p>The valid image types are <cite>.gif</cite>, <cite>.jpg</cite>, <cite>.png</cite>.</p>
+</div>
+<div class="section" id="animation-names">
+<h3>Animation Names<a class="headerlink" href="#animation-names" title="Permalink to this headline">¶</a></h3>
+<p>In this case, each folder (e.g. <cite>animation_name_1</cite>) denotes the name of the
+animation that that folder describes!</p>
+<p>In so doing, if you wanted to grab the <cite>animation_name_1</cite> animation, you would
+grab it using the name: <cite>animation_name_1</cite>.</p>
+</div>
+<div class="section" id="subanimations-idle-and-transition">
+<h3>Subanimations: Idle and Transition<a class="headerlink" href="#subanimations-idle-and-transition" title="Permalink to this headline">¶</a></h3>
+<p>Furthermore, each animation is broken up into two subanimations:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Transition</p></li>
+<li><p>Idle</p></li>
+</ul>
+</div></blockquote>
+<p>When an animation is played, it will first play its transition frames once,
+and then loop its idle frames from then on.</p>
+<p>If you do not want an animation to play its transition you can:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Include <strong>no</strong> transition frames in the directory.</p></li>
+<li><p>Configure the <code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimation()</span></code> object to skip playing
+any loaded transition frames by passing in the <cite>skip_transition</cite> parameter
+on instantiation or <code class="xref py py-class docutils literal notranslate"><span class="pre">update()</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optional-playback-file-frames">
+<h3>Optional Playback File (frames)<a class="headerlink" href="#optional-playback-file-frames" title="Permalink to this headline">¶</a></h3>
+<p>The frames file, which denotes a custom <cite>playback list</cite> is optional!</p>
+<p>If you leave it blank or omit it, the animation frames will played
+<strong>sequentially in alphanumeric order</strong>.</p>
+</div>
+</div>
+<div class="section" id="playback-lists">
+<h2>Playback Lists<a class="headerlink" href="#playback-lists" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="description">
+<h3>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h3>
+<p>A playback list is a list of tuples of (frame_index, times_to_repeat)
+which governs how a particular animation is played.</p>
+<p>It can be defined by a playback file that is parsed using
+<a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib._generate_playback_list" title="TomoAnimationLib.TomoAnimationLib._generate_playback_list"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_generate_playback_list()</span></code></a>.</p>
+<p>If a playback file is not denoted, then a default playback list is generated
+that causes animation frames to be played sequentially in alphanumeric order.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Playback Files</strong></p>
+<p>A playback file is any text file that denotes a sequence of frames
+to be played per loop, where each frame is delimited by newlines,
+and each frame has an optional number of times to repeat that frame.</p>
+<p>By default your playback file should be called <cite>frames</cite>.</p>
+</div>
+</div>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<dl>
+<dt>The following playback file (with ” ” as delimiter):</dt><dd><div class="line-block">
+<div class="line">1 1</div>
+<div class="line">2 2</div>
+<div class="line">3 3</div>
+</div>
+</dd>
+</dl>
+<p>Would result in playback list: <cite>[(1, 1), (2, 2), (3,3)]</cite>, causing
+the following to play in order per loop:</p>
+<ul class="simple">
+<li><p>Frame 1 to be played once</p></li>
+<li><p>Frame 2 to be played twice</p></li>
+<li><p>Frame 3 to be played thrice</p></li>
+</ul>
+<p>Optionally, if <cite>default_repeats</cite> is set to 1 in the parser,
+then the playback list can be written as:</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">1</div>
+<div class="line">2 2</div>
+<div class="line">3 3</div>
+</div>
+</div></blockquote>
+<p>Resulting in playback list: <cite>[(1, 1), (2, 2), (3,3)]</cite></p>
+<dl>
+<dt>Furthermore, playback does not need to go in order!</dt><dd><div class="line-block">
+<div class="line">1</div>
+<div class="line">3 2</div>
+<div class="line">1</div>
+<div class="line">2 2</div>
+</div>
+</dd>
+</dl>
+<p>Would result in playback list: <cite>[(1, 1), (3, 2), (1, 1) , (2, 2)]</cite>
+Causing the following to play in order per loop:</p>
+<ul class="simple">
+<li><p>Frame 1 to be played once</p></li>
+<li><p>Frame 3 to be played twice</p></li>
+<li><p>Frame 1 to be played once</p></li>
+<li><p>Frame 2 to be played twice</p></li>
+</ul>
+</div>
+<div class="section" id="frame-numbers">
+<h3>Frame Numbers<a class="headerlink" href="#frame-numbers" title="Permalink to this headline">¶</a></h3>
+<p>If the directory had frames 01.png, 02.png, 03.png, then:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Frame number 1 would be 01.png</p></li>
+<li><p>Frame number 2 would be 02.png</p></li>
+<li><p>Frame number 2 would be 03.png</p></li>
+</ul>
+</div></blockquote>
+<p>This is because 01, 02, and 03 would be sorted in that order!</p>
+</div>
+<div class="section" id="gotcha-specifying-frame-numbers">
+<h3>Gotcha: Specifying Frame Numbers<a class="headerlink" href="#gotcha-specifying-frame-numbers" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When specifying playback lists, remember that the first element on each line
+is the <strong>frame number</strong>. You must only specify frame numbers!</p>
+<p>Do <strong>not</strong> specify the name of the frame!</p>
+</div>
+</div>
+</div>
+<div class="section" id="animation-libraries">
+<h2>Animation Libraries<a class="headerlink" href="#animation-libraries" title="Permalink to this headline">¶</a></h2>
+<p>The way animations ar emanaged are through the use of dictionaries called
+animation libraries.</p>
+<p>(Sorry for the confusing nomenclature! But I figured this was more in line with
+the animation side of things, less so the code side of things.)</p>
+<div class="section" id="dictionary-structure">
+<h3>Dictionary Structure<a class="headerlink" href="#dictionary-structure" title="Permalink to this headline">¶</a></h3>
+<p>The generic animation library used by
+<a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib" title="TomoAnimationLib.TomoAnimationLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimationLib()</span></code></a> is denoted as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;animation_name_1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;transition&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;frames&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                                     <span class="s1">&#39;playback&#39;</span><span class="p">:</span> <span class="p">[]},</span>
+                      <span class="s1">&#39;idle&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;frames&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                               <span class="s1">&#39;playback&#39;</span><span class="p">:</span> <span class="p">[]},</span>
+                      <span class="s1">&#39;animation_path&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">},</span>
+ <span class="s1">&#39;animation_name_2&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;transition&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;frames&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                                     <span class="s1">&#39;playback&#39;</span><span class="p">:</span> <span class="p">[]},</span>
+                      <span class="s1">&#39;idle&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;frames&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                               <span class="s1">&#39;playback&#39;</span><span class="p">:</span> <span class="p">[]},</span>
+                      <span class="s1">&#39;animation_path&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">},</span>
+ <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Each animation is given its own dictionary <strong>keyed by name</strong>, and within each
+of those, notice that there are subanimation dictionaries <cite>transition</cite> and
+<cite>idle</cite> for the subanimations.</p>
+<p>Each subanimation dictionary contains <cite>frames</cite> and <cite>playback</cite>
+elements.</p>
+<ul class="simple">
+<li><p><cite>frames</cite>: Refers to the individual frame images that make up a subanimation</p></li>
+<li><p><cite>playback</cite>: Refers to the playback list for that subanimation</p></li>
+<li><p><cite>animation_path</cite>: Refers to the path of the animation</p></li>
+</ul>
+</div>
+<div class="section" id="path-and-frame-dictionaries">
+<h3>Path and Frame Dictionaries<a class="headerlink" href="#path-and-frame-dictionaries" title="Permalink to this headline">¶</a></h3>
+<p>Each <a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib" title="TomoAnimationLib.TomoAnimationLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimationLib()</span></code></a> instance will contain
+<a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib.animation_path_lib" title="TomoAnimationLib.TomoAnimationLib.animation_path_lib"><code class="xref py py-attr docutils literal notranslate"><span class="pre">animation_path_lib</span></code></a> and
+<a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib.animation_frame_lib" title="TomoAnimationLib.TomoAnimationLib.animation_frame_lib"><code class="xref py py-attr docutils literal notranslate"><span class="pre">animation_frame_lib</span></code></a>
+dictionaries.</p>
+<p>Each of these dictionaries are structured identically (with the small caveat
+that the <cite>playback</cite> element is a string for the
+<a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib.animation_path_lib" title="TomoAnimationLib.TomoAnimationLib.animation_path_lib"><code class="xref py py-attr docutils literal notranslate"><span class="pre">animation_path_lib</span></code></a>), with the
+only other difference being what is <strong>contained</strong> within them.</p>
+<ul class="simple">
+<li><p>The <a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib.animation_path_lib" title="TomoAnimationLib.TomoAnimationLib.animation_path_lib"><code class="xref py py-attr docutils literal notranslate"><span class="pre">animation_path_lib</span></code></a>
+dictionary will contain paths to the images and playback files.</p></li>
+<li><p>The <code class="xref py py-attr docutils literal notranslate"><span class="pre">animation_frames_lib</span></code>
+dictionary will contain the loaded images and parsed playback lists.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Additionally, it should be noted that generally, the
+<a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib.animation_path_lib" title="TomoAnimationLib.TomoAnimationLib.animation_path_lib"><code class="xref py py-attr docutils literal notranslate"><span class="pre">animation_path_lib</span></code></a> will come
+in fully loaded on init.</p>
+<p>But the <code class="xref py py-attr docutils literal notranslate"><span class="pre">animation_frames_lib</span></code>
+might fill up over time or get emptied as animations get loaded and unloaded
+for performance and memory optimisation.</p>
+<p>(This is because <a class="reference internal" href="TomoAnimations.html#TomoAnimationLib.TomoAnimationLib" title="TomoAnimationLib.TomoAnimationLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">TomoAnimationLib()</span></code></a>
+implements lazy initialisation and some other optimisations!)</p>
+</div>
+</div>
+</div>
+<div class="section" id="animation-info-dictionaries">
+<h2>Animation Info Dictionaries<a class="headerlink" href="#animation-info-dictionaries" title="Permalink to this headline">¶</a></h2>
+<p>Animation info dictionaries are used to track run-time information about
+animations, normally used for debug or display purposes.</p>
+<p>Structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;animation_name&#39;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+ <span class="s1">&#39;frame&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+ <span class="s1">&#39;frame_repeats&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+ <span class="s1">&#39;frame_repeat_index&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+ <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Notice that the elements are initialised as <cite>-1</cite>.</p>
+<p>Its elements are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>animation_name</cite>: The name of the animation being played.</p></li>
+<li><p><cite>frame</cite>: The frame number.</p></li>
+<li><p><cite>frame_repeats</cite>: The number of times to repeat the current frame.</p></li>
+<li><p><cite>frame_repeat_index</cite>: The number of times the frame has been repeated for
+this play of the frame</p></li>
+<li><p><cite>state</cite>: The animation state.</p>
+<ul>
+<li><p><cite>-1</cite> for uninitialised</p></li>
+<li><p><cite>0</cite> for transition</p></li>
+<li><p><cite>1</cite> for idle</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Frame Index Woes</strong></p>
+<p>Note that the frame index specified in <cite>frame</cite> is <strong>not</strong> the index of the
+frame in the subanimation’s frame list.</p>
+<p>It is instead the number of the frame when the subanimation’s directory is
+sorted alphanumerically.</p>
+<p>So, if the directory had frames 01.png, 02.png, 03.png, then frame number 1
+would be 01.png.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="TomoFACE.html" class="btn btn-neutral float-right" title="TomoFACE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="test.html" class="btn btn-neutral float-left" title="Test" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, methylDragon
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

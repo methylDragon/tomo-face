@@ -1,24 +1,33 @@
 """
 Author: github.com/methylDragon
 
-████████╗ ██████╗ ███╗   ███╗ ██████╗ ██╗
-╚══██╔══╝██╔═══██╗████╗ ████║██╔═══██╗██║
-   ██║   ██║   ██║██╔████╔██║██║   ██║██║
-   ██║   ██║   ██║██║╚██╔╝██║██║   ██║╚═╝
-   ██║   ╚██████╔╝██║ ╚═╝ ██║╚██████╔╝██╗
-   ╚═╝    ╚═════╝ ╚═╝     ╚═╝ ╚═════╝ ╚═╝
+████████╗░██████╗░███╗░░░███╗░██████╗░██╗
+╚══██╔══╝██╔═══██╗████╗░████║██╔═══██╗██║
+░░░██║░░░██║░░░██║██╔████╔██║██║░░░██║██║
+░░░██║░░░██║░░░██║██║╚██╔╝██║██║░░░██║╚═╝
+░░░██║░░░╚██████╔╝██║░╚═╝░██║╚██████╔╝██╗
+░░░╚═╝░░░░╚═════╝░╚═╝░░░░░╚═╝░╚═════╝░╚═╝
 
-      - Making Devices Friendlier -
+      ~ Making Devices Friendlier ~
 
-[TOMOFACE-AnimationLib: Animation Library Submodule]
+[TomoFACE-AnimationLib: Animation Library Submodule]
+
+Description:
+    TomoFACE module for importing, loading, generating, and managing animations
+    from an animation directory.
 
 Features:
-- Importing, loading, processing, and generating animations from an animation
-  directory
-    - With sanity checks!
-- On-demand/lazy initialisation
-- Animation generation
-- Image optimisation and scaling
+    - Animation management for animations from an animation directory (With \
+    sanity checks!):
+
+        - Importing
+        - Loading
+        - Processing
+        - Generating animations
+    - On-demand/lazy initialisation
+    - Image optimisation and scaling
+
+.. include:: TomoAnimationLib Method Overview.rst
 """
 
 from TomoAnimation import TomoAnimation
@@ -34,84 +43,38 @@ logger.addHandler(logging.NullHandler())
 
 class TomoAnimationLib():
     """
-    TOMOFACE module for importing, loading, and generating animations from an
-    animation directory
+    TomoFACE module for importing, loading, generating, and managing animations
+    from an animation directory.
 
-    Notes
-    -----
-    Animations consist of transition and idle frames.
+    Args:
+        animation_path (str, optional): Path to overall animation directory.
+            Defaults to "".
+        display (pygame.Display, optional): Pygame Display object to target
+            animations towards. Defaults to None.
 
-    On animation change, transition frames will play, and then idle frames
-    will loop.
+    Attributes:
+        animation_frame_lib (dict): Loaded animation frames and playback lists.
+        animation_path_lib (dict): Paths to animation frames and playback
+            lists.
+        animation_path (str): Path to overall animation directory.
+        display (pygame.Display or None): Pygame Display object to target
+            animations towards.
 
-    Attributes
-    ----------
-    animation_frame_lib : dict
-        Loaded animation frames and playback lists.
-    animation_path_lib : dict
-        Paths to animation frames and playback lists.
-    animation_path : str
-        Path to overall animation directory.
-    display : pygame.Display, optional
-        Pygame Display object to target animations towards.
+    Note:
+        Animations consist of transition and idle frames.
 
-    Processing Methods
-    ------------------
-    aspect_scale(img, rescale_tuple)
-        Get scaled image dimensions while remaining aspect ratio.
-    load_images(img_path_list, rescale_tuple=None, stretch=False)
-        Compute and load rescaled images as pygame surfaces.
-    set_display(display)
-        Set pygame display object to optimise images towards.
-
-    Sanity Check Methods
-    --------------------
-    is_image_file(filename)
-        Check if a given file is a valid image file.
-    is_valid_animation(path)
-        Check if a given path is a valid animation directory.
-
-    IO Methods
-    ----------
-    add_animations(animation_path)
-        Add animations from a path to path lib without loading them.
-    add_and_load_animations(animation_path, rescale_tuple=None, stretch=False)
-        Load and add animations from a path.
-    add_single_subanimation(name, sub_name, img_path_list, playback_list=[])
-        Add a single sub-animation into path lib without loading it.
-    add_and_load_single_subanimation(name, sub_name,
-                                     img_path_list, playback_list=[],
-                                     rescale_tuple=None, stretch=False)
-        Add and load a single sub-animation.
-
-    Animation Management Methods
-    ----------------------------
-    load_animation(name, rescale_tuple=None, stretch=False)
-        Load an animation in the path lib into the frame lib.
-    load_animations(rescale_tuple=None, stretch=False)
-        Load all animations in the path lib into the frame lib.
-    unload_animations()
-        Unload animation frame images to clear memory.
-    unload_animation(name)
-        Unload a single animation's frame images to clear memory.
-    remove_animations()
-        Remove animations from the frame and path libraries.
-    remove_animation(name)
-        Remove a single animation from the frame and path libraries.
-    create_animation(name, rescale_tuple=None, stretch=False,
-                     default_delay=1, default_skip=1,
-                     skip_transition=False, animation_info_dict=None)
-        Create and configure a playable `TomoAnimation`.
-    update_animation(animation,
-                     rescale_tuple=None, stretch=False,
-                     transition_playback=None, idle_playback=None,
-                     default_delay=1, default_skip=1,
-                     skip_transition=False, animation_info_dict=None,
-                     reset=False)
-        Update an animation while preserving its sequence and state.
+        On animation change, transition frames will play, and then idle frames
+        will loop.
     """
 
     def __init__(self, animation_path="", display=None):
+        """
+        Args:
+            animation_path (str, optional): Path to overall animation
+                directory. Defaults to "".
+            display (pygame.Display, optional): Pygame Display object to target
+                animations towards. Defaults to None.
+        """
         self.animation_frame_lib = {}
         self.animation_path_lib = {}
 
@@ -129,7 +92,17 @@ class TomoAnimationLib():
         """
         Get scaled image dimensions while retaining aspect ratio.
 
-        Source: http://www.pygame.org/pcr/transform_scale/
+        Args:
+            img (pygame.Surface): Image to scale
+            rescale_tuple ((int, int)): Target scale dimensions
+                as a tuple of (width, height).
+
+        Returns:
+            (int, int): Tuple of (scaled_width, scaled_height) that preserves
+            aspect ratio.
+
+        Source:
+            http://www.pygame.org/pcr/transform_scale/
         """
         bx, by = rescale_tuple
         ix, iy = img.get_size()
@@ -156,7 +129,20 @@ class TomoAnimationLib():
         return int(sx), int(sy)
 
     def load_images(self, img_path_list, rescale_tuple=None, stretch=False):
-        """Compute and load rescaled images as pygame surfaces."""
+        """
+        Compute and load rescaled images as pygame surfaces.
+
+        Args:
+            img_path_list (list of str): List of paths to images to load.
+            rescale_tuple ((int, int), optional): Dimensions to scale images
+                to. Defaults to None. Leave as default to not scale images.
+            stretch (bool, optional): If True, scales images while disregarding
+                aspect ratio. Otherwise, preserves aspect ratio when scaling.
+                Defaults to False.
+
+        Returns:
+            pygame.Surface: The loaded image, scaled if requested.
+        """
         if rescale_tuple:
             if stretch:  # Stretch images to fit display
                 return [pygame.transform.smoothscale(pygame.image.load(image),
@@ -172,16 +158,30 @@ class TomoAnimationLib():
         else:  # If no rescale_tuple is provided, just load images naively
             return [pygame.image.load(image) for image in img_path_list]
 
-    def set_display(self, display):
-        """Set pygame display object to optimise images towards."""
+    def set_display(self, display, skip_unload=False):
+        """
+        Set pygame display object to optimise images towards.
+
+        Args:
+            display (pygame.Surface): Target display to optimise towards.
+            skip_unload (bool, optional): If True, does not unload animations
+                after setting display. Defaults to False.
+        """
         assert type(display) == pygame.Surface, \
             "Display must be of type pygame.Surface!"
 
         self.display = display
-        self.unload_animations()
+
+        if not skip_unload:
+            self.unload_animations()
 
     def _optimise_animation(self, name):
-        """Optimise image format for an animation's images."""
+        """
+        Optimise image format for an animation's images.
+
+        Args:
+            name (str): The name of the animation that will be optimised.
+        """
         if self.display:
             try:
                 frame_lib = self.animation_frame_lib[name]
@@ -197,7 +197,26 @@ class TomoAnimationLib():
             logger.warning("No target display specified to optimise for!")
 
     def _load_animation(self, name, rescale_tuple=None, stretch=False):
-        """Load an animation in the path lib into the frame lib."""
+        """
+        Load an animation in the path lib into the frame lib.
+
+        Args:
+            name (str): Name of the animation to load.
+            rescale_tuple ((int, int), optional): Dimensions to scale images
+                to. Defaults to None. Leave as default to not scale images.
+            stretch (bool, optional): If True, scales images while disregarding
+                aspect ratio. Otherwise, preserves aspect ratio when scaling.
+                Defaults to False.
+
+        See also:
+            :meth:`~TomoAnimationLib._optimise_animation()`
+
+        ‏‎Note:
+            Private wrapper of the `load_animation()` method that also
+            generates playback lists.
+
+            Also causes loaded animations to be automatically optimised.
+        """
         paths = self.animation_path_lib[name]
 
         # Generate playback lists
@@ -237,7 +256,11 @@ class TomoAnimationLib():
     ###########################################################################
 
     def is_image_file(self, filename):
-        """Check if a given file is a valid image file."""
+        """
+        Check if a given file is a valid image file.
+
+        Returns:
+            True if image file has a valid extension, False otherwise."""
         try:
             return any([filename.endswith(img_type)
                         for img_type in [".jpg", ".png", ".gif"]])
@@ -245,7 +268,12 @@ class TomoAnimationLib():
             return False
 
     def is_valid_animation(self, path):
-        """Check if a given path is a valid animation directory."""
+        """
+        Check if a given path is a valid animation directory.
+
+        Returns:
+            True if directory is valid, False otherwise.
+        """
         try:
             if "idle" in os.listdir(path) or "transition" in os.listdir(path):
                 return True
@@ -271,7 +299,17 @@ class TomoAnimationLib():
         To avoid lazy initialisation, use add_and_load_animations()
 
         Loading, rescaling, and converting the animation surfaces will happen
-        later when animations are used."""
+        later when animations are used.
+
+        Args:
+            animation_path (str): The path to the animation directories.
+
+        Returns:
+            dict: The resulting animation path lib.
+
+        ‏‎Note:
+            This causes the animation path lib to be modified in-place!
+        """
         for name, paths in self._parse_animation_path(animation_path).items():
             self.animation_path_lib[name] = paths
 
@@ -279,7 +317,23 @@ class TomoAnimationLib():
 
     def add_and_load_animations(self, animation_path, rescale_tuple=None,
                                 stretch=False):
-        """Load and add animations from a path."""
+        """Load and add animations from a path.
+
+        Args:
+            animation_path (str): The path to the animation directories.
+            rescale_tuple ((int, int), optional): Dimensions to scale images
+                to. Defaults to None. Leave as default to not scale images.
+            stretch (bool, optional): If True, scales images while disregarding
+                aspect ratio. Otherwise, preserves aspect ratio when scaling.
+                Defaults to False.
+
+        Returns:
+            (dict, dict): The resulting animation path and frame libs.
+
+        ‏‎Note:
+            This causes the animation path and frame libs to be modified
+            in-place!
+        """
         self.add_animations(animation_path)
 
         for name in self.animation_path_lib.keys():
@@ -289,7 +343,23 @@ class TomoAnimationLib():
 
     def add_single_subanimation(self, name, sub_name,
                                 img_path_list, playback_list=[]):
-        """Add a single sub-animation into path lib without loading it."""
+        """
+        Add a single sub-animation into path lib without loading it.
+
+        Args:
+            name (str): The name of the animation.
+            sub_name (str): The sub-name of the animation.
+                {"idle", "transition"}.
+            img_path_list (list of str): List of paths to images to load.
+            playbac_list (list of (int, int), optional): Playback list for
+                animation. Defaults to [].
+
+        Returns:
+            dict: The resulting animation path lib.
+
+        ‏‎Note:
+            This causes the animation path lib to be modified in-place!
+        """
         assert sub_name in ["transition", "idle"], \
             "sub_name must be \"idle\" or \"transition\"!"
 
@@ -318,7 +388,24 @@ class TomoAnimationLib():
     def add_and_load_single_subanimation(self, name, sub_name,
                                          img_path_list, playback_list=[],
                                          rescale_tuple=None, stretch=False):
-        """Add and load a single sub-animation."""
+        """
+        Add and load a single sub-animation.
+
+        Args:
+            animation_path (str): The path to the animation directories.
+            rescale_tuple ((int, int), optional): Dimensions to scale images
+                to. Defaults to None. Leave as default to not scale images.
+            stretch (bool, optional): If True, scales images while disregarding
+                aspect ratio. Otherwise, preserves aspect ratio when scaling.
+                Defaults to False.
+
+        Returns:
+            (dict, dict): The resulting animation path and frame libs.
+
+        ‏‎Note:
+            This causes the animation path and frame libs to be modified
+            in-place!
+        """
         assert sub_name in ["transition", "idle"], \
             "sub_name must be \"idle\" or \"transition\"!"
 
@@ -340,7 +427,17 @@ class TomoAnimationLib():
         return self.animation_path_lib, self.animation_frame_lib
 
     def _parse_animation_path(self, path, playback_file="frames"):
-        """Parse all valid animation paths in a directory as a dict."""
+        """
+        Parse all valid animation paths in a directory as a dict.
+
+        Args:
+            path (str): Path to animation directory.
+            playback_file (str, optional): Name of playback file.
+                Defaults to "frames".
+
+        Returns:
+            dict: The resulting animation path lib.
+        """
         # Create output paths dict
         paths = {}
 
@@ -396,39 +493,18 @@ class TomoAnimationLib():
         A playback list is a list of tuples of (frame_index, times_to_repeat)
         which governs how a particular animation is played.
 
-        Example
-        -------
-        The following playback file (with " " as delimiter):
-        1 1
-        2 2
-        3 3
+        Args:
+            data (str): The string from the playback file.
+            delimited (str, optional): The delimiter to separate frame number
+                and number of repeats per line. Defaults to " ".
+            default_repeats (int, optional): The number of times to repeat
+                playing a frame if no repeats were specified. Defaults to 1.
 
-        Would result in playback list: [(1, 1), (2, 2), (3,3)]
-        Causing the following to play in order per loop:
-        - Frame 1 to be played once
-        - Frame 2 to be played twice
-        - Frame 3 to be played thrice
+        Returns:
+            list: The playback list.
 
-        Optionally, if default_repeats is set to 1, then the playback list can
-        be written as:
-        1
-        2 2
-        3 3
-
-        Resulting in playback list: [(1, 1), (2, 2), (3,3)]
-
-        Furthermore, playback does not need to go in order!
-        1
-        3 2
-        1
-        2 2
-
-        Would result in playback list: [(1, 1), (3, 2), (1, 1) , (2, 2)]
-        Causing the following to play in order per loop:
-        - Frame 1 to be played once
-        - Frame 3 to be played twice
-        - Frame 1 to be played once
-        - Frame 2 to be played twice
+        See Also:
+            For information on playback lists, see: :doc:`Data Structures`
         """
         if len(data) == 0:
             return []
@@ -456,23 +532,64 @@ class TomoAnimationLib():
     ###########################################################################
 
     def load_animation(self, name, rescale_tuple=None, stretch=False):
-        """Load an animation in the path lib into the frame lib."""
+        """
+        Load an animation in the path lib into the frame lib.
+
+        Args:
+            name (str): Animation name.
+            rescale_tuple ((int, int), optional): Dimensions to scale animation
+                images to.
+                Defaults to None. Leave as default to not scale images.
+            stretch (bool, optional): If True, scales animation images while
+                disregarding aspect ratio.
+                Otherwise, preserves aspect ratio when scaling.
+                Defaults to False.
+        """
         assert name in self.animation_path_lib, "Animation does not exist!"
 
         self._load_animation(name, rescale_tuple, stretch)
 
     def load_animations(self, rescale_tuple=None, stretch=False):
-        """Load all animations in the path lib into the frame lib."""
+        """
+        Load all animations in the path lib into the frame lib.
+
+        Args:
+            rescale_tuple ((int, int), optional): Dimensions to scale animation
+                images to.
+                Defaults to None. Leave as default to not scale images.
+            stretch (bool, optional): If True, scales animation images while
+                disregarding aspect ratio.
+                Otherwise, preserves aspect ratio when scaling.
+                Defaults to False.
+        """
         for name in self.animation_path_lib:
             self._load_animation(name, rescale_tuple=None, stretch=False)
+
+    def unload_animation(self, name):
+        """
+        Unload a single animation's frame images to clear memory.
+
+        Args:
+            name (str): Animation name.
+        """
+        try:
+            self.animation_frame_lib.pop(name)
+        except Exception:
+            pass
 
     def unload_animations(self):
         """Unload animation frame images to clear memory."""
         self.animation_frame_lib = {}
 
-    def unload_animation(self, name):
-        """Unload a single animation's frame images to clear memory."""
+    def remove_animation(self, name):
+        """
+        Remove a single animation from the frame and path libraries.
+
+        Args:
+            name (str): Animation name.
+        """
         try:
+            self.animation_path_lib.pop(name)
             self.animation_frame_lib.pop(name)
         except Exception:
             pass
@@ -482,18 +599,35 @@ class TomoAnimationLib():
         self.animation_frame_lib = {}
         self.animation_path_lib = {}
 
-    def remove_animation(self, name):
-        """Remove a single animation from the frame and path libraries."""
-        try:
-            self.animation_path_lib.pop(name)
-            self.animation_frame_lib.pop(name)
-        except Exception:
-            pass
-
     def create_animation(self, name, rescale_tuple=None, stretch=False,
-                         default_delay=1, default_skip=1,
+                         default_repeats=1, default_skips=1,
                          skip_transition=False, animation_info_dict=None):
-        """Create and configure a playable `TomoAnimation`."""
+        """
+        Create and configure a playable
+        :class:`~TomoAnimation.TomoAnimation()`.
+
+        Args:
+            rescale_tuple ((int, int), optional): Dimensions to scale animation
+                images to.
+                Defaults to None. Leave as default to not scale images.
+            stretch (bool, optional): If True, scales animation images while
+                disregarding aspect ratio.
+                Otherwise, preserves aspect ratio when scaling.
+                Defaults to False.
+            default_repeats (int, optional): Number of times to repeat each
+                frame if no frame repeats were specified for that frame in the
+                playback list. Defaults to 1.
+            default_skips (int, optional): Number of times to advance the
+                animation iterator on each advance call. Defaults to 1.
+            skip_transition (bool, optional): If True, animation will skip
+                playing its transition. Defaults to False.
+            animation_info_dict (dict, optional): Pass in a `dict` object
+                to track animation info. Defaults to None.
+
+        Returns:
+            :class:`~TomoAnimation.TomoAnimation()`: The configured
+                :class:`~TomoAnimation.TomoAnimation()` object.
+        """
         try:
             # If animation has not been initialised (from lazy initialisation)
             # Or the animation needs to be scaled, reload it
@@ -502,8 +636,8 @@ class TomoAnimationLib():
 
             return TomoAnimation(self.animation_frame_lib[name],
                                  name,
-                                 default_delay=default_delay,
-                                 default_skip=default_skip,
+                                 default_repeats=default_repeats,
+                                 default_skips=default_skips,
                                  skip_transition=skip_transition,
                                  animation_info_dict=animation_info_dict)
         except Exception as e:
@@ -512,45 +646,75 @@ class TomoAnimationLib():
     def update_animation(self, animation,
                          rescale_tuple=None, stretch=False,
                          transition_playback=None, idle_playback=None,
-                         default_delay=1, default_skip=1,
+                         default_repeats=1, default_skips=1,
                          skip_transition=False, animation_info_dict=None,
                          reset=False):
         """
         Update an animation while preserving its sequence and state.
 
-        You can update:
-        - Animation source images
-        - Animation playback list
-        - Animation configurations
-            - Default skip
-            - Default delay
-            - Transition skip
-            - Info dict reference
-        - And you can also reset the animation!
+        Updatable attributes:
+            - Animation source images
+            - Animation playback list
+            - Animation configurations
+                - Default skip
+                - Default delay
+                - Transition skip
+                - Info dict reference
+            - And you can also reset the animation!
 
-        Warnings
-        --------
-        This function should be called whenever any display rescaling happens
-        and animations need to be rescaled in order to rescale the animations!
+        Args:
+            animation (:class:`~TomoAnimation.TomoAnimation()`): The
+                :class:`~TomoAnimation.TomoAnimation()` object to configure.
+            rescale_tuple ((int, int), optional): Dimensions to scale animation
+                images to.
+                Defaults to None. Leave as default to not scale images.
+            stretch (bool, optional): If True, scales animation images while
+                disregarding aspect ratio.
+                Otherwise, preserves aspect ratio when scaling.
+                Defaults to False.
+            default_repeats (int, optional): Number of times to repeat each
+                frame if no frame repeats were specified for that frame in the
+                playback list. Defaults to 1.
+            default_skips (int, optional): Number of times to advance the
+                animation iterator on each advance call. Defaults to 1.
+            skip_transition (bool, optional): If True, animation will skip
+                playing its transition. Defaults to False.
+            animation_info_dict (dict, optional): Pass in a `dict` object
+                to track animation info. Defaults to None.
+            reset (bool, optional): Reset animation's sequence, and play from
+                beginning. Defaults to False.
 
-        It is not automatically called by this library because a default
-        resolution to scale animations automatically by is not obvious for all
-        possible use-cases.
+        Warnings:
+            **When Rescaling Animations**
 
-        This function should only be used to give an animation scaled versions
-        of its current images and/or an altered but valid playback list based
-        on its original.
+            This method should be called whenever any display rescaling
+            happens and animations need to be rescaled in order to rescale the
+            animations!
 
-        If you want to completely create a new animation, you are better off
-        creating a new animation instance using create_animation().
+            It is not automatically called by this library because a default
+            resolution to scale animations automatically by is not obvious for
+            all possible use-cases.
 
-        Notes
-        -----
-        Animation playback sequence will only update once it completes its idle
-        loop. But animation images should update immediately.
+        Warnings:
+            **Proper Update Usage**
 
-        Also, ensure new image list is at least the size of the current
-        animation!
+            This method should only be used to give an animation scaled
+            versions of its current images and/or an altered but valid playback
+            list based on its original.
+
+            You must ensure that the animation has been added to the
+            :class:`~TomoAnimationLib.TomoAnimationLib()`!
+
+            If you want to completely create a new animation, you are better
+            off creating a new animation instance using
+            :meth:`~TomoAnimationLib.create_animation()`.
+
+        ‏‎Note:
+            Animation playback sequence will only update once it completes its
+            idle loop. But animation images should update immediately.
+
+            Also, ensure new image list is at least the size of the current
+            animation!
         """
         name = animation.get_name()
 
@@ -571,8 +735,8 @@ class TomoAnimationLib():
                 = idle_playback
 
         animation.update(self.animation_frame_lib[name],
-                         default_delay=default_delay,
-                         default_skip=default_skip,
+                         default_repeats=default_repeats,
+                         default_skips=default_skips,
                          skip_transition=skip_transition,
                          animation_info_dict=animation_info_dict,
                          reset=reset)
